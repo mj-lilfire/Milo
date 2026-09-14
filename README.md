@@ -19,12 +19,20 @@ engine.
 
 ## Playing it on an iPad
 
-The game is a static web page — any way of serving this folder over HTTP will
-work. Two routes, depending on whether you want a link you can keep.
+It is live here:
 
-### The quickest way: over your own Wi-Fi
+### **https://mj-lilfire.github.io/Milo/**
 
-Nothing to configure, works with the repository private. On a computer on the
+Open that in Safari on the iPad. Every push to this branch redeploys it, via
+the workflow in `.github/workflows/pages.yml` — there is no build step, the
+repository root is the site.
+
+> Saw a 404 before Pages finished its first build? Safari caches those. Pull
+> down to refresh, or open `https://mj-lilfire.github.io/Milo/?v=2` once.
+
+### Or serve it yourself
+
+Useful for developing, and it needs nothing published. On a computer on the
 same network as the iPad:
 
 ```sh
@@ -33,31 +41,9 @@ cd Milo
 python3 -m http.server 8000
 ```
 
-Find that computer's local address (`ipconfig getifaddr en0` on a Mac,
-`hostname -I` on Linux) and open `http://<that-address>:8000` in Safari on the
-iPad. The computer needs to stay awake and on the network while you play.
-
-### A permanent link: GitHub Pages
-
-Two settings, about thirty seconds, and you get a URL you can open on the iPad
-from anywhere.
-
-1. **Make the repository public** — [Settings](https://github.com/mj-lilfire/Milo/settings),
-   scroll to *Danger Zone*, **Change repository visibility → Make public**.
-   (GitHub Pages only serves private repositories on a paid plan.)
-2. **Turn on Pages** — [Settings → Pages](https://github.com/mj-lilfire/Milo/settings/pages),
-   set *Source* to **Deploy from a branch**, pick branch
-   **`claude/one-piece-3d-game-prototype-71p064`** (already the default) and
-   folder **`/ (root)`**, then **Save**.
-
-Give it a minute to build. The site lands at:
-
-```
-https://mj-lilfire.github.io/Milo/
-```
-
-Any other static host works just as well — Netlify, Vercel, Cloudflare Pages,
-an S3 bucket. There is no build step, so the folder *is* the site.
+Find that machine's local address (`ipconfig getifaddr en0` on a Mac,
+`hostname -I` on Linux) and open `http://<that-address>:8000` in Safari. Any
+other static host works too — Netlify, Vercel, Cloudflare Pages, an S3 bucket.
 
 ### Either way, make it feel like an app
 
