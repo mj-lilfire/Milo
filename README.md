@@ -19,23 +19,52 @@ engine.
 
 ## Playing it on an iPad
 
-The game is a static web page, so any web host will do. The quickest route is
-GitHub Pages, straight from this branch:
+The game is a static web page — any way of serving this folder over HTTP will
+work. Two routes, depending on whether you want a link you can keep.
 
-1. In this repository, open **Settings → Pages**.
+### The quickest way: over your own Wi-Fi
+
+Nothing to configure, works with the repository private. On a computer on the
+same network as the iPad:
+
+```sh
+git clone https://github.com/mj-lilfire/Milo.git
+cd Milo
+python3 -m http.server 8000
+```
+
+Find that computer's local address (`ipconfig getifaddr en0` on a Mac,
+`hostname -I` on Linux) and open `http://<that-address>:8000` in Safari on the
+iPad. The computer needs to stay awake and on the network while you play.
+
+### A permanent link: GitHub Pages
+
+**This repository is currently private, and GitHub Pages only serves private
+repositories on a paid plan.** On a free account you would need to make the
+repository public first — your call, and worth a thought given it is your
+personal repo.
+
+Once that is settled:
+
+1. Open **Settings → Pages** in this repository.
 2. Under *Build and deployment*, set **Source** to *Deploy from a branch*.
-3. Choose branch **`claude/one-piece-3d-game-prototype-71p064`**, folder **`/ (root)`**, and press **Save**.
-4. Wait a minute, then open the URL Pages gives you (it looks like
-   `https://mj-lilfire.github.io/Milo/`) in **Safari on the iPad**.
+3. Pick branch **`claude/one-piece-3d-game-prototype-71p064`** (it is already
+   the default branch) and folder **`/ (root)`**, then **Save**.
+4. Give it a minute, then open the URL Pages shows you — it will look like
+   `https://mj-lilfire.github.io/Milo/`.
 
-Then, so it plays like an app instead of a web page:
+Any other static host works just as well: drop the folder on Netlify, Vercel,
+Cloudflare Pages or an S3 bucket. There is no build step, so the folder *is*
+the site.
 
-5. Tap the **Share** button, then **Add to Home Screen**.
-6. Launch it from the home screen icon. It opens full screen, in landscape,
-   with no browser chrome — and it works offline after the first load.
+### Either way, make it feel like an app
 
-> Safari needs WebGL, which is on by default. If the game reports it cannot
-> start, check **Settings → Apps → Safari → Advanced**.
+In Safari on the iPad, tap **Share → Add to Home Screen**, then launch it from
+the icon. It opens full screen in landscape with no browser chrome, and it
+keeps working offline after the first load.
+
+> Safari needs WebGL, which is on by default. If the game reports that it could
+> not set out, check **Settings → Apps → Safari → Advanced**.
 
 ## The controls
 
