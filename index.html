@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Grand Line — A Pirate's Log</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="description" content="A first-person pirate voyage: sail the Grand Line, make landfall on every island, and build your crew.">
+<meta name="theme-color" content="#0a1622">
+<!-- Launch chrome-free when added to the iPad home screen -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Grand Line">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="assets/icon-180.png">
+<link rel="icon" href="assets/icon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<canvas id="game-canvas"></canvas>
+
+<div id="ui-root">
+  <!-- Log Pose -->
+  <div id="compass" class="panel hidden">
+    <div id="compass-strip">
+      <div id="compass-ticks"></div>
+      <div id="compass-target"></div>
+      <div id="compass-needle"></div>
+    </div>
+    <div id="compass-label"><span class="name">—</span><span class="dist"></span></div>
+  </div>
+
+  <!-- Current island + task -->
+  <div id="objective" class="panel hidden">
+    <div id="objective-where">—</div>
+    <div id="objective-task">—</div>
+  </div>
+
+  <div id="top-buttons" class="hidden">
+    <button class="sbtn" id="btn-journal" data-ui>Log</button>
+    <button class="sbtn" id="btn-pause" data-ui>II</button>
+  </div>
+
+  <div id="vitals" class="hidden">
+    <div id="health-bar"><div id="health-fill"></div></div>
+    <div id="berries">฿ 0</div>
+  </div>
+
+  <div id="reticle" class="hidden"></div>
+  <div id="prompt" class="panel hidden"></div>
+
+  <div id="stick" class="hidden"><div id="stick-knob"></div></div>
+
+  <div id="buttons" class="hidden">
+    <button class="tbtn" id="btn-jump" data-ui>Jump</button>
+    <button class="tbtn primary" id="btn-interact" data-ui>Use</button>
+    <button class="tbtn" id="btn-run" data-ui>Run</button>
+    <button class="tbtn" id="btn-attack" data-ui>Strike</button>
+  </div>
+
+  <div id="banner">
+    <div class="sub"></div>
+    <div class="main"></div>
+    <div class="tag"></div>
+  </div>
+
+  <div id="toasts"></div>
+
+  <!-- Dialogue -->
+  <div id="dialogue" class="hidden" data-ui>
+    <div id="dlg-speaker"></div>
+    <div id="dlg-text"></div>
+    <div id="dlg-choices"></div>
+    <div id="dlg-more">tap to continue ▾</div>
+  </div>
+
+  <!-- Title screen -->
+  <div id="title" class="overlay hidden" data-ui>
+    <div id="title-card">
+      <h1>GRAND&nbsp;LINE</h1>
+      <div class="sub">A Pirate's Log</div>
+      <div class="menu">
+        <button class="mbtn primary" id="btn-continue">Resume Voyage</button>
+        <button class="mbtn" id="btn-new">New Voyage</button>
+        <button class="mbtn" id="btn-controls">Controls</button>
+      </div>
+      <div id="title-hint"></div>
+    </div>
+  </div>
+
+  <!-- Pause -->
+  <div id="pause" class="overlay hidden" data-ui>
+    <div id="title-card">
+      <h1 style="font-size:clamp(28px,6vw,46px)">Anchored</h1>
+      <div class="sub">voyage paused</div>
+      <div class="menu">
+        <button class="mbtn primary" id="btn-resume">Back to the Sea</button>
+        <button class="mbtn" id="btn-save-quit">Save &amp; Return to Title</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Journal / route map -->
+  <div id="journal" class="overlay hidden" data-ui>
+    <div id="journal-card">
+      <h2><span>Captain's Log</span><button class="sbtn" id="btn-journal-close" data-ui>Close</button></h2>
+      <div id="journal-body" data-scroll></div>
+    </div>
+  </div>
+
+  <div id="fade"></div>
+
+  <div id="loading">
+    <div class="spinner"></div>
+    <div class="label">Charting the seas…</div>
+  </div>
+</div>
+
+<script type="module" src="src/main.js"></script>
+</body>
+</html>

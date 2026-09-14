@@ -1,0 +1,16 @@
+{
+  "name": "Grand Line — A Pirate's Log",
+  "short_name": "Grand Line",
+  "description": "A first-person pirate voyage: sail between islands, make landfall, and build a crew.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "fullscreen",
+  "orientation": "landscape",
+  "background_color": "#0a1622",
+  "theme_color": "#0a1622",
+  "icons": [
+    { "src": "assets/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "assets/icon-180.png", "sizes": "180x180", "type": "image/png", "purpose": "any" },
+    { "src": "assets/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }
+  ]
+}

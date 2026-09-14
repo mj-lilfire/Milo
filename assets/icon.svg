@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180" width="180" height="180">
+  <defs>
+    <linearGradient id="sea" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1b5e86"/>
+      <stop offset="1" stop-color="#0a1622"/>
+    </linearGradient>
+  </defs>
+  <rect width="180" height="180" rx="38" fill="url(#sea)"/>
+  <path d="M0 138c14-8 24-8 38 0s24 8 38 0 24-8 38 0 24 8 38 0 24-8 28-4v46H0z" fill="#2d8fae" opacity=".55"/>
+  <path d="M0 152c14-8 24-8 38 0s24 8 38 0 24-8 38 0 24 8 38 0 24-8 28-4v32H0z" fill="#9fc9e2" opacity=".35"/>
+  <g transform="translate(90 78)">
+    <ellipse cx="0" cy="18" rx="62" ry="15" fill="#e8c86a"/>
+    <ellipse cx="0" cy="15" rx="62" ry="14" fill="#f0d47c"/>
+    <path d="M-30 16c0-26 6-42 30-42s30 16 30 42z" fill="#f0d47c"/>
+    <path d="M-31 6h62v13h-62z" fill="#c23b2e"/>
+    <path d="M-30 -4c4-14 12-22 30-22s26 8 30 22z" fill="#e8c86a" opacity=".55"/>
+  </g>
+</svg>
