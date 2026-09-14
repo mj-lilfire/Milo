@@ -431,7 +431,10 @@ export class ExploringMode {
       const dz = z - player.position.z;
       const d = Math.hypot(dx, dz);
       if (d > range) return;
-      const dot = (dx / (d || 1)) * fwd.x + (dz / (d || 1)) * fwd.z;
+      // Practically on top of it: there is no meaningful direction to face,
+      // and the dot product degenerates to zero, so skip the facing test
+      // rather than silently offering nothing.
+      const dot = d < 0.8 ? 1 : (dx / d) * fwd.x + (dz / d) * fwd.z;
       if (dot < 0.25) return;
       const score = d - dot * 1.2;
       if (!best || score < best.score) best = { ...payload, score, distance: d };

@@ -9,7 +9,7 @@
  * falls back to cache, which keeps a stale build from outliving a deploy while
  * still letting the game run at sea with no signal.
  */
-const CACHE = "grandline-v1";
+const CACHE = "grandline-v2";
 
 const SHELL = [
   "./",

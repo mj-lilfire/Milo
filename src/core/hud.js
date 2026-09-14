@@ -133,10 +133,10 @@ export class Hud {
     show(this.el.reticle, playing);
     show(this.el.topButtons, playing);
     show(this.el.buttons, playing && this.isTouch);
-    if (!playing) {
-      this.clearPrompt();
-      this.el.stick.classList.add("hidden");
-    }
+    // A prompt belongs to the mode that set it. Carrying "Set sail" out to sea
+    // (or "Drop anchor" ashore) is never right, so drop it on every change.
+    this.clearPrompt();
+    if (!playing) this.el.stick.classList.add("hidden");
     // The attack button is dead weight while at sea.
     $("btn-attack").style.visibility = mode === "island" ? "visible" : "hidden";
   }
@@ -198,6 +198,9 @@ export class Hud {
 
   clearPrompt() {
     this.el.prompt.classList.add("hidden");
+    // Blank it too. A hidden element that still reads "Drop anchor" is a trap
+    // for anything inspecting the DOM, tests included.
+    this.el.prompt.textContent = "";
   }
 
   toast(message, ms = 2600) {

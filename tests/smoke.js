@@ -14,6 +14,14 @@ function check(name, cond, detail = "") {
 
 require("fs").mkdirSync(SHOTS, { recursive: true });
 
+/** The prompt text the player can actually see — "" when it is hidden. */
+async function visiblePrompt(page) {
+  return page.evaluate(() => {
+    const el = document.getElementById("prompt");
+    return el.classList.contains("hidden") ? "" : el.textContent;
+  });
+}
+
 (async () => {
   const browser = await chromium.launch({
     executablePath: process.env.CHROMIUM_PATH || undefined,
@@ -103,8 +111,16 @@ require("fs").mkdirSync(SHOTS, { recursive: true });
     g.sailing.speed = 0;
   });
   await page.waitForTimeout(600);
-  check("dock prompt appears", await page.evaluate(() =>
-    document.getElementById("prompt").textContent.includes("Drop anchor")));
+
+  // The wheel outranks the anchor, so bringing her alongside and then stepping
+  // away from the helm is the intended two-beat docking flow. The prompt at
+  // the wheel says so.
+  const atHelmPrompt = await visiblePrompt(page);
+  check("the helm prompt explains how to dock", atHelmPrompt.includes("drop anchor"), atHelmPrompt);
+  await page.keyboard.press("KeyE");
+  await page.waitForTimeout(600);
+  check("stepping away from the wheel offers the anchor",
+    (await visiblePrompt(page)).includes("Drop anchor"));
 
   await page.keyboard.press("KeyE");
   await page.waitForTimeout(6000);
@@ -256,6 +272,80 @@ require("fs").mkdirSync(SHOTS, { recursive: true });
   }));
   check("captain's log lists the route", journal.visible && journal.rows === 11, `${journal.rows} rows`);
   await page.screenshot({ path: `${SHOTS}/08-journal.png` });
+
+  // --- leaving an island and getting back under way -----------------------
+  // Regression: departing leaves the ship inside the island's docking range,
+  // and the anchor prompt used to outrank the helm there — so the only action
+  // on offer was to go straight back ashore, with no way to build speed and
+  // leave. A softlock, and invisible to any test that departs by calling the
+  // method instead of pressing the button.
+  await page.click("#btn-journal-close");
+  await page.waitForTimeout(400);
+
+  const settle = async () => {
+    await page.waitForFunction(() => !window.game.busy, null, { timeout: 25000 });
+    await page.waitForTimeout(1500);
+  };
+
+  await page.evaluate(() => window.game.dock(0));
+  await settle();
+
+  // Board the way a player does: walk to the end of the jetty, look at the
+  // ship, press Use.
+  await page.evaluate(() => {
+    const g = window.game;
+    const { landing, mooring } = g.exploring.island.dock;
+    g.player.position.copy(landing);
+    g.player.yaw = Math.atan2(-(mooring.x - landing.x), -(mooring.z - landing.z));
+  });
+  await page.waitForTimeout(400);
+  const boardPrompt = await visiblePrompt(page);
+  check("the moored ship offers to set sail", boardPrompt.includes("Set sail"), boardPrompt);
+
+  await page.keyboard.press("KeyE");
+  await settle();
+  check("pressing Use at the ship puts to sea",
+    await page.evaluate(() => window.game.state === "sailing"));
+
+  const justLeft = await visiblePrompt(page);
+  check("departing does not immediately offer to dock again",
+    !justLeft.includes("Drop anchor"), justLeft || "(no prompt)");
+
+  // The wheel must be reachable even with the island still alongside.
+  await page.evaluate(() => window.game.player.position.set(0, 3.4, -5.0));
+  await page.waitForTimeout(400);
+  const wheelPrompt = await visiblePrompt(page);
+  check("the helm is reachable right after departing",
+    wheelPrompt.includes("Take the helm"), wheelPrompt || "(no prompt)");
+
+  await page.keyboard.press("KeyE");
+  await page.waitForTimeout(700);
+  check("taking the helm does not dump the player back ashore",
+    await page.evaluate(() => window.game.state === "sailing" && window.game.sailing.atHelm));
+
+  // Sail clear, then return: the anchor must be on offer again.
+  await page.evaluate(() => {
+    const g = window.game;
+    const s = g.sailing.islandProxies[0].spec;
+    const d = s.terrain.radius + 340;
+    g.sailing.position.set(
+      s.world.x + Math.sin(s.dockAngle) * d, s.world.z + Math.cos(s.dockAngle) * d);
+  });
+  await page.waitForTimeout(700);
+  await page.evaluate(() => {
+    const g = window.game;
+    const s = g.sailing.islandProxies[0].spec;
+    const d = s.terrain.radius + 34;
+    g.sailing.position.set(
+      s.world.x + Math.sin(s.dockAngle) * d, s.world.z + Math.cos(s.dockAngle) * d);
+    g.sailing.atHelm = false;
+    g.player.position.set(0, 2.2, 4.4);  // amidships, clear of the wheel
+  });
+  await page.waitForTimeout(700);
+  const backPrompt = await visiblePrompt(page);
+  check("sailing back to an island offers the anchor again",
+    backPrompt.includes("Drop anchor"), backPrompt || "(no prompt)");
+  await page.screenshot({ path: `${SHOTS}/09-round-trip.png` });
 
   // --- final error sweep --------------------------------------------------
   check("no console errors during play", errors.length === 0, errors.slice(0, 6).join(" | "));

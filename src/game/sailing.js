@@ -194,7 +194,7 @@ export class SailingMode {
     if (from) {
       // Push off from the jetty, pointed at open water.
       const angle = (from.dockAngle ?? 0);
-      const dist = from.terrain.radius + 46;
+      const dist = from.terrain.radius + 62;
       this.position.set(from.world.x + Math.sin(angle) * dist, from.world.z + Math.cos(angle) * dist);
       this.heading = angle;
     } else if (opts.position) {
@@ -211,6 +211,12 @@ export class SailingMode {
     this.rudder = 0;
     this.atHelm = false;
 
+    // Weighing anchor leaves the ship well inside the island's own docking
+    // range, so without this the only thing on offer would be to go straight
+    // back ashore. Suppress that island's prompt until we have actually put
+    // some sea between us and it.
+    this.justLeft = from ? from.id : null;
+
     player.position.copy(SHIP.boardPoint);
     player.velocityY = 0;
     player.onGround = true;
@@ -225,6 +231,8 @@ export class SailingMode {
     engine.setScene(this.scene);
     this.ctx.audio.setAmbience("sea");
     this.syncShipTransform(0);
+
+    if (from) this.ctx.hud.toast("Take the helm at the wheel to set sail", 4200);
   }
 
   exit() {
@@ -384,18 +392,64 @@ export class SailingMode {
     }
   }
 
+  /**
+   * Decide what the Use button does right now.
+   *
+   * Order matters, and it is the whole fix for a softlock: the wheel outranks
+   * the anchor. Docking used to win outright whenever an island was in range,
+   * which meant that after stepping off the jetty — still well inside that
+   * range — the only available action was to go back ashore. No helm, no way
+   * to build speed, no way out.
+   */
   updatePrompt() {
-    const { hud, input, progress, route } = this.ctx;
-    const near = this.findNearestIsland();
-    this.nearest = near && near.distance < DOCK_RANGE ? near : null;
+    const { hud, input, progress, player, audio } = this.ctx;
 
-    if (this.nearest) {
-      const unlocked = progress.isUnlocked(this.nearest.index);
-      if (unlocked) {
-        hud.setPrompt(`Drop anchor at ${this.nearest.spec.name}`);
+    const near = this.findNearestIsland();
+    const inRange = near && near.distance < DOCK_RANGE;
+
+    // Clear the just-departed grace once we are genuinely clear of the place.
+    if (this.justLeft && near && near.spec.id === this.justLeft && !inRange) {
+      this.justLeft = null;
+    }
+    const dockable = inRange && near.spec.id !== this.justLeft;
+    this.nearest = dockable ? near : null;
+
+    // 1. At the wheel, Use always means "let go of it".
+    if (this.atHelm) {
+      hud.setPrompt(dockable ? "Leave the helm to drop anchor" : "Leave the helm");
+      if (input.consume("interact")) {
+        this.atHelm = false;
+        // Step clear of the wheel, so the next press offers the anchor rather
+        // than simply putting us back on the helm.
+        player.position.set(SHIP.helm.x, SHIP.sternDeckY, SHIP.helm.z + 3.4);
+        audio.click();
+      }
+      return;
+    }
+
+    // 2. Standing at the wheel: take it. Reachable whatever is off the bow.
+    const helmDist = Math.hypot(
+      player.position.x - SHIP.helm.x,
+      player.position.z - SHIP.helm.z
+    );
+    if (helmDist < 2.6) {
+      hud.setPrompt("Take the helm");
+      if (input.consume("interact")) {
+        this.atHelm = true;
+        audio.click();
+      }
+      return;
+    }
+
+    // 3. Anywhere else on deck, with an island alongside: go ashore.
+    if (inRange) {
+      if (!dockable) {
+        hud.clearPrompt();
+        input.consume("interact");
+      } else if (progress.isUnlocked(near.index)) {
+        hud.setPrompt(`Drop anchor at ${near.spec.name}`);
         if (input.consume("interact")) {
-          this.onDock?.(this.nearest.index);
-          return;
+          this.onDock?.(near.index);
         }
       } else {
         hud.setPrompt("The Log Pose hasn't settled here yet", "…");
@@ -404,37 +458,11 @@ export class SailingMode {
       return;
     }
 
-    // Nothing to dock with — offer the helm, or a word with the crew.
-    const helmDist = this.atHelm ? 0 : Math.hypot(
-      this.ctx.player.position.x - SHIP.helm.x,
-      this.ctx.player.position.z - SHIP.helm.z
-    );
-
-    if (this.atHelm) {
-      hud.setPrompt("Leave the helm");
-      if (input.consume("interact")) {
-        this.atHelm = false;
-        this.ctx.player.position.set(SHIP.helm.x, SHIP.sternDeckY, SHIP.helm.z + 1.5);
-        this.ctx.audio.click();
-      }
-      return;
-    }
-
-    if (helmDist < 2.6) {
-      hud.setPrompt("Take the helm");
-      if (input.consume("interact")) {
-        this.atHelm = true;
-        this.ctx.audio.click();
-      }
-      return;
-    }
-
+    // 4. Otherwise, a word with whoever is on deck.
     const crew = this.nearestCrew();
     if (crew) {
       hud.setPrompt(`Talk to ${crew.member.name}`);
-      if (input.consume("interact")) {
-        this.onTalkCrew?.(crew.member);
-      }
+      if (input.consume("interact")) this.onTalkCrew?.(crew.member);
       return;
     }
 
