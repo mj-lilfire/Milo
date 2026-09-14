@@ -39,23 +39,25 @@ iPad. The computer needs to stay awake and on the network while you play.
 
 ### A permanent link: GitHub Pages
 
-**This repository is currently private, and GitHub Pages only serves private
-repositories on a paid plan.** On a free account you would need to make the
-repository public first — your call, and worth a thought given it is your
-personal repo.
+Two settings, about thirty seconds, and you get a URL you can open on the iPad
+from anywhere.
 
-Once that is settled:
+1. **Make the repository public** — [Settings](https://github.com/mj-lilfire/Milo/settings),
+   scroll to *Danger Zone*, **Change repository visibility → Make public**.
+   (GitHub Pages only serves private repositories on a paid plan.)
+2. **Turn on Pages** — [Settings → Pages](https://github.com/mj-lilfire/Milo/settings/pages),
+   set *Source* to **Deploy from a branch**, pick branch
+   **`claude/one-piece-3d-game-prototype-71p064`** (already the default) and
+   folder **`/ (root)`**, then **Save**.
 
-1. Open **Settings → Pages** in this repository.
-2. Under *Build and deployment*, set **Source** to *Deploy from a branch*.
-3. Pick branch **`claude/one-piece-3d-game-prototype-71p064`** (it is already
-   the default branch) and folder **`/ (root)`**, then **Save**.
-4. Give it a minute, then open the URL Pages shows you — it will look like
-   `https://mj-lilfire.github.io/Milo/`.
+Give it a minute to build. The site lands at:
 
-Any other static host works just as well: drop the folder on Netlify, Vercel,
-Cloudflare Pages or an S3 bucket. There is no build step, so the folder *is*
-the site.
+```
+https://mj-lilfire.github.io/Milo/
+```
+
+Any other static host works just as well — Netlify, Vercel, Cloudflare Pages,
+an S3 bucket. There is no build step, so the folder *is* the site.
 
 ### Either way, make it feel like an app
 
