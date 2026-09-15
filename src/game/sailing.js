@@ -1,6 +1,7 @@
 import * as THREE from "../../vendor/three-0.160.1.module.min.js";
 import { TAU, clamp, damp, dampAngle, lerp, makeRng, hashString, range } from "../core/utils.js";
 import { Ocean, sampleHeight, sampleNormal } from "../world/ocean.js";
+import { Weather } from "./weather.js";
 import { Sky } from "../world/sky.js";
 import { Terrain } from "../world/terrain.js";
 import { createShip, animateShip, SHIP, deckHeight, clampToDeck } from "../world/ship.js";
@@ -62,6 +63,17 @@ export class SailingMode {
 
     this.crewGroup = new THREE.Group();
     ship.group.add(this.crewGroup);
+
+    this.weather = new Weather({
+      audio: this.ctx.audio,
+      scene: this.scene,
+      seed: 20260914,
+      onChange: (state, label) => {
+        if (state === "calm") this.ctx.hud.toast("The sea is settling", 3200);
+        else this.ctx.hud.toast(label + (state === "storm" ? " — hold your course" : ""), 3600);
+        this.ctx.audio.setAmbience(this.weather.severity > 0.45 ? "storm" : "sea");
+      },
+    });
 
     this.built = true;
   }
@@ -153,32 +165,36 @@ export class SailingMode {
     });
   }
 
-  /** Apply an island's sea climate to the sky, fog and water. */
+  /**
+   * Record an island's fair-weather sea climate.
+   *
+   * This is only the baseline now: the weather slides these values toward
+   * storm every frame, so each stretch of the Grand Line keeps its own
+   * character even when the sky closes in.
+   */
   applyClimate(spec) {
     if (!spec) return;
     const s = spec.seaSky || {};
-    this.sky.setPalette({
+    const o = spec.seaWater || {};
+    this.basePalette = {
       top: s.top ?? 0x3d81c4,
       horizon: s.horizon ?? 0xcfe4ef,
-      sunColor: s.sun ?? 0xfff0cc,
+      sun: s.sun ?? 0xfff0cc,
       haze: s.haze ?? 0.45,
       sunIntensity: s.sunIntensity ?? 2.1,
       ambientSky: s.ambientSky ?? 0xbcd8e8,
       ambientGround: s.ambientGround ?? 0x4a5f52,
-      cloudColor: s.cloud ?? 0xffffff,
-      cloudOpacity: s.cloudOpacity ?? 0.82,
-    });
-    const o = spec.seaWater || {};
-    this.ocean.setPalette({
       deep: o.deep ?? 0x0a3b5c,
       shallow: o.shallow ?? 0x2d8fae,
-      sky: s.horizon ?? 0x9fc9e2,
-      fog: s.horizon ?? 0xbcd8e8,
       fogDensity: o.fogDensity ?? 0.00042,
+    };
+    this.sky.setPalette({
+      sunColor: this.basePalette.sun,
+      ambientSky: this.basePalette.ambientSky,
+      ambientGround: this.basePalette.ambientGround,
     });
     this.ocean.setSunDirection(this.sky.sunDirection);
-    this.scene.fog.color.set(s.horizon ?? 0xbcd8e8);
-    this.scene.fog.density = o.fogDensity ?? 0.00042;
+    this.weather?.apply(this.ocean, this.sky, this.scene, this.basePalette);
   }
 
   /**
@@ -303,11 +319,27 @@ export class SailingMode {
     const steerAuthority = clamp(Math.abs(this.speed) / 7, 0, 1);
     this.heading += this.rudder * 0.62 * steerAuthority * dt;
 
+    // In heavy weather the sea shoves the bow around, so holding a course
+    // becomes something you actively do rather than something you set.
+    const rough = this.weather ? this.weather.helmDifficulty : 0;
+    if (rough > 0.05) {
+      const shove = Math.sin(time * 0.53) * 0.6 + Math.sin(time * 1.31 + 2.1) * 0.4;
+      this.heading += shove * rough * 0.22 * dt;
+      // And she loses way punching into it.
+      this.speed *= 1 - rough * 0.12 * dt;
+    }
+
     this.position.x += Math.sin(this.heading) * this.speed * dt;
     this.position.y += Math.cos(this.heading) * this.speed * dt;
 
     this.keepOffTheRocks();
     this.syncShipTransform(time);
+
+    // Weather first: it sets the sea state the hull is about to ride.
+    this.weather.update(dt, this.ship.group.position);
+    if (this.basePalette) {
+      this.weather.apply(this.ocean, this.sky, this.scene, this.basePalette);
+    }
 
     // --- world --------------------------------------------------------------
     this.ship.group.getWorldPosition(_wp);
@@ -338,6 +370,7 @@ export class SailingMode {
     } else {
       hud.updateCompass(this.heading, null, "", 0);
     }
+    hud.setWeather(this.weather.label, this.weather.severity);
 
     this.updatePrompt();
     player.applyToCamera(engine.camera);
@@ -482,6 +515,11 @@ export class SailingMode {
 
   /** State worth persisting across a save. */
   serialize() {
-    return { x: this.position.x, z: this.position.y, heading: this.heading };
+    return {
+      x: this.position.x,
+      z: this.position.y,
+      heading: this.heading,
+      weather: this.weather ? this.weather.toJSON() : null,
+    };
   }
 }

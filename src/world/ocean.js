@@ -26,13 +26,30 @@ const WAVES = [
   };
 });
 
+/**
+ * How hard the sea is running: 1 is a calm day, ~2.6 is a full storm.
+ *
+ * Kept as one module-level value that both the sampler below and the shader
+ * uniform read, for the same reason the wave table is shared — a hull riding
+ * calm-weather buoyancy through storm-sized waves would sink through them.
+ */
+let swell = 1;
+
+export function setSwell(value) {
+  swell = value;
+}
+
+export function getSwell() {
+  return swell;
+}
+
 /** Surface height at a world position. Matches the vertex shader exactly. */
 export function sampleHeight(x, z, time) {
   let h = 0;
   for (const w of WAVES) {
     h += Math.sin((x * w.dx + z * w.dz) * w.k + time * w.speed * w.k * 6) * w.amp;
   }
-  return h;
+  return h * swell;
 }
 
 /** Analytic surface normal — used to tilt the ship with the swell. */
@@ -44,7 +61,7 @@ export function sampleNormal(x, z, time, out = new THREE.Vector3()) {
     dx += c * w.dx;
     dz += c * w.dz;
   }
-  return out.set(-dx, 1, -dz).normalize();
+  return out.set(-dx * swell, 1, -dz * swell).normalize();
 }
 
 /** Emit the wave sum as GLSL so shader and sampler can never disagree. */
@@ -56,6 +73,7 @@ function waveGLSL(fn) {
 
 const vertexShader = /* glsl */ `
 uniform float uTime;
+uniform float uSwell;
 varying vec3 vWorld;
 varying float vHeight;
 varying float vFogDepth;
@@ -63,7 +81,7 @@ varying float vFogDepth;
 float waveHeight(vec2 p) {
   float h = 0.0;
 ${waveGLSL("h")}
-  return h;
+  return h * uSwell;
 }
 
 void main() {
@@ -80,6 +98,7 @@ void main() {
 
 const fragmentShader = /* glsl */ `
 uniform float uTime;
+uniform float uSwell;
 uniform vec3 uDeep;
 uniform vec3 uShallow;
 uniform vec3 uSky;
@@ -94,7 +113,7 @@ varying float vFogDepth;
 float waveHeight(vec2 p) {
   float h = 0.0;
 ${waveGLSL("h")}
-  return h;
+  return h * uSwell;
 }
 
 // Central differences on the same wave sum give a normal that survives the
@@ -124,7 +143,7 @@ void main() {
   color += uSunColor * spec * 0.9;
 
   // Foam rides the very tops of the crests and the steepest faces.
-  float crest = smoothstep(1.35, 2.25, vHeight + slope * 2.4);
+  float crest = smoothstep(1.35 * uSwell, 2.25 * uSwell, vHeight + slope * 2.4);
   color = mix(color, vec3(0.96, 0.98, 1.0), crest * 0.7);
 
   float fogAmount = 1.0 - exp(-uFogDensity * uFogDensity * vFogDepth * vFogDepth);
@@ -187,6 +206,7 @@ export class Ocean {
   constructor(scene, { rings = 108, segments = 128, maxRadius = 7000 } = {}) {
     const uniforms = {
       uTime: { value: 0 },
+      uSwell: { value: 1 },
       uDeep: { value: new THREE.Color(0x0a3b5c) },
       uShallow: { value: new THREE.Color(0x2d8fae) },
       uSky: { value: new THREE.Color(0x9fc9e2) },
@@ -229,6 +249,9 @@ export class Ocean {
 
   update(time, cameraPos) {
     this.uniforms.uTime.value = time;
+    // Pushed from the module value every frame so the surface can never be
+    // running a different sea state from the buoyancy sampler.
+    this.uniforms.uSwell.value = swell;
     // Waves are evaluated in world space, so the disc can simply follow the
     // camera without the pattern sliding along with it.
     this.mesh.position.x = cameraPos.x;

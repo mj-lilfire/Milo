@@ -27,6 +27,8 @@ export class Hud {
       compassTarget: $("compass-target"),
       compassName: $("compass-label").querySelector(".name"),
       compassDist: $("compass-label").querySelector(".dist"),
+      weather: $("weather"),
+      weatherText: $("weather").querySelector(".text"),
       objective: $("objective"),
       objWhere: $("objective-where"),
       objTask: $("objective-task"),
@@ -177,6 +179,22 @@ export class Hud {
     this.el.compassDist.textContent = formatDistance(distance);
   }
 
+  /**
+   * The glass. Colour carries the warning faster than the words do, which
+   * matters when the player is reading it out of the corner of their eye.
+   */
+  setWeather(label, severity) {
+    if (this._weatherLabel !== label) {
+      this._weatherLabel = label;
+      this.el.weatherText.textContent = label;
+    }
+    const cls = severity > 0.72 ? "foul" : severity > 0.4 ? "rough" : "";
+    if (this._weatherClass !== cls) {
+      this._weatherClass = cls;
+      this.el.weather.className = cls;
+    }
+  }
+
   setObjective(where, task) {
     this.el.objWhere.textContent = where;
     this.el.objTask.textContent = task;
@@ -204,6 +222,11 @@ export class Hud {
   }
 
   toast(message, ms = 2600) {
+    // A run of quick events (weather turning, loot, a recruit) can otherwise
+    // stack a column of toasts over the middle of the screen.
+    while (this.el.toasts.children.length >= 3) {
+      this.el.toasts.firstElementChild.remove();
+    }
     const el = document.createElement("div");
     el.className = "toast";
     el.textContent = message;

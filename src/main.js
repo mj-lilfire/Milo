@@ -150,6 +150,8 @@ class Game {
     this.hud.hideTitle();
     await this.hud.fade(true, 10);
     this.enterSailing({ position: data?.sea ? { x: data.sea.x, y: data.sea.z } : null, heading: data?.sea?.heading });
+    // Come back to the weather you left, rather than always to a flat calm.
+    this.sailing.weather?.restore(data?.sea?.weather);
     await this.hud.fade(false, 800);
   }
 

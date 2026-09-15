@@ -148,6 +148,31 @@ html, body {
 
 #compass-label .dist { color: var(--parchment); opacity: 0.8; margin-left: 6px; }
 
+#weather {
+  margin-top: 3px;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  opacity: 0.85;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+#weather .dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #7ec9e0;
+  transition: background 0.8s ease, box-shadow 0.8s ease;
+}
+
+/* The dot warms toward a warning colour as the glass falls. */
+#weather.rough .dot { background: #e0b33a; box-shadow: 0 0 6px rgba(224, 179, 58, 0.8); }
+#weather.foul .dot { background: #d6452f; box-shadow: 0 0 8px rgba(214, 69, 47, 0.9); }
+#weather.foul .text { color: #ffb4a3; }
+
 /* --- objective ----------------------------------------------------------- */
 
 #objective {
