@@ -132,6 +132,17 @@ nearest safe landfall, and it costs Berries rather than progress.
 Which is what Berries are for. Every port of any size has a chandler selling
 meals, repairs, and three levels each of rigging, gunnery and hull plating.
 
+## Your crew come with you
+
+Everyone you have recruited walks off the ship at every landfall. They keep
+loose station in a ring around you as you explore, push apart rather than
+stacking up, and break formation to go and fight anything that comes at you.
+They are still people you can stop and talk to.
+
+Deliberately loose: they hold a slot they are allowed to drift out of, and they
+give up a chase that takes them too far from their captain. Tight
+formation-keeping looks robotic, and makes a narrow jetty impassable.
+
 ## Running it locally
 
 No build step, no dependencies to install. Serve the folder over HTTP (ES
@@ -198,6 +209,21 @@ of the difference between 60fps and a slideshow on a tablet.
 **Resolution flexes, frame rate doesn't.** The renderer watches frame cost and
 sheds pixel ratio before it sheds frames.
 
+**The shadow frustum travels with you.** Stretching one shadow map over a
+400-metre island leaves no resolution for the things you are standing next to,
+so the cast frustum is a box that follows the viewer — snapped to a grid, or
+the shadow edges crawl as you walk.
+
+### A known loose end
+
+Leaving an island releases everything that island allocated; the route test
+audits this per island and names anything that survives. But *absolute*
+resident geometry across a full sixteen-island run climbs higher than the sea
+scene's own contents account for, and repeated measurements of it disagree with
+each other. It is bounded and harmless at these numbers — a page reload clears
+it — but it is not fully explained, so the test reports and bounds it rather
+than pretending to assert it precisely.
+
 ## Testing
 
 Two browser tests drive the real game in a real browser — no mocks, no build
@@ -208,6 +234,7 @@ npm install playwright
 python3 -m http.server 8099 &
 node tests/smoke.js       # one voyage: sail, dock, walk, talk, save, resume
 node tests/route.js       # all sixteen islands, every quest stage, teardown audited
+node tests/crew.js        # the party disembarks, follows, fights, still talks
 node tests/weather.js     # every sea state, and that the hull rides it
 node tests/encounters.js  # cannons, sea kings, patrols, hull damage
 node tests/shop.js        # prices, affordability, upgrades taking effect
