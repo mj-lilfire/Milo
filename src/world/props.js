@@ -298,7 +298,85 @@ export const coral = (rng, p) => {
   return { geo: groundAt(merge(parts)), collider: { r: 0.9, h: 2 } };
 };
 
+export const deadTree = (rng, p) => {
+  const h = range(rng, 6, 11);
+  const bark = vary(p.deadWood || 0x4a423a, rng, 0.12);
+  const parts = [at(cyl(0.3, 0.7, h, bark, 6), { y: h / 2, rz: range(rng, -0.08, 0.08) })];
+  // Bare limbs, thrown out at mean angles — the silhouette does the haunting.
+  const limbs = 3 + Math.floor(rng() * 4);
+  for (let i = 0; i < limbs; i++) {
+    const a = (i / limbs) * TAU + rng() * 0.7;
+    const len = range(rng, 2.2, 4.4);
+    const ly = range(rng, h * 0.45, h * 0.95);
+    parts.push(at(cyl(0.12, 0.26, len, bark, 5), {
+      x: Math.cos(a) * len * 0.36, y: ly, z: Math.sin(a) * len * 0.36,
+      rz: -Math.cos(a) * 1.05, rx: Math.sin(a) * 1.05,
+    }));
+    if (rng() > 0.4) {
+      parts.push(at(cyl(0.07, 0.13, len * 0.6, bark, 4), {
+        x: Math.cos(a) * len * 0.75, y: ly + len * 0.35, z: Math.sin(a) * len * 0.75,
+        rz: -Math.cos(a) * 0.5, rx: Math.sin(a) * 0.5,
+      }));
+    }
+  }
+  return { geo: groundAt(merge(parts)), collider: { r: 0.8, h } };
+};
+
+export const gravestone = (rng, p) => {
+  const h = range(rng, 1.1, 1.9);
+  const stone = vary(p.stone, rng, 0.1);
+  const lean = range(rng, -0.22, 0.22);
+  const parts = [
+    at(box(1.0, h, 0.22, stone), { y: h / 2, rz: lean }),
+    at(box(1.3, 0.18, 0.5, stone), { y: 0.09 }),
+  ];
+  if (rng() > 0.5) parts.push(at(box(0.55, 0.2, 0.24, stone), { y: h * 0.72, rz: lean }));
+  return { geo: groundAt(merge(parts)), collider: { r: 0.6, h } };
+};
+
+/** A mangrove big enough to build a town in. */
+export const mangrove = (rng, p) => {
+  const h = range(rng, 30, 52);
+  const trunkR = h * 0.055;
+  const bark = vary(p.trunk, rng, 0.08);
+  const parts = [at(cyl(trunkR * 0.55, trunkR, h, bark, 8), { y: h / 2 })];
+
+  // Stilt roots: the reason a mangrove reads as a mangrove.
+  const roots = 5 + Math.floor(rng() * 3);
+  for (let i = 0; i < roots; i++) {
+    const a = (i / roots) * TAU + rng() * 0.3;
+    const reach = trunkR * range(rng, 2.6, 4.2);
+    parts.push(at(cyl(trunkR * 0.2, trunkR * 0.42, reach * 1.7, bark, 5), {
+      x: Math.cos(a) * reach * 0.5, y: reach * 0.62, z: Math.sin(a) * reach * 0.5,
+      rz: -Math.cos(a) * 0.55, rx: Math.sin(a) * 0.55,
+    }));
+  }
+  // Canopy
+  const blobs = 4 + Math.floor(rng() * 3);
+  for (let i = 0; i < blobs; i++) {
+    const a = (i / blobs) * TAU;
+    parts.push(at(ico(range(rng, h * 0.16, h * 0.26), vary(p.leaf, rng, 0.12), 0), {
+      x: Math.cos(a) * h * 0.16, y: h + range(rng, -h * 0.06, h * 0.1), z: Math.sin(a) * h * 0.16,
+      sy: 0.72,
+    }));
+  }
+  return { geo: groundAt(merge(parts)), collider: { r: trunkR * 2.4, h } };
+};
+
+/** Decorative cloud-stuff for a sky island. Walk straight through it. */
+export const cloudPuff = (rng, p) => {
+  const parts = [];
+  const blobs = 2 + Math.floor(rng() * 3);
+  for (let i = 0; i < blobs; i++) {
+    parts.push(at(ico(range(rng, 1.4, 3.2), 0xf4f8fb, 0), {
+      x: range(rng, -2.4, 2.4), y: range(rng, 0.4, 1.6), z: range(rng, -2.4, 2.4), sy: 0.55,
+    }));
+  }
+  return { geo: groundAt(merge(parts)), collider: null };
+};
+
 export const PROPS = {
+  deadTree, gravestone, mangrove, cloudPuff,
   palm, broadleaf, pine, cactus, rock, boulder, barrel, crate, house, hut,
   windmill, lamppost, signpost, fence, tent, watchtower, cannon, flagpole,
   grassTuft, iceSpire, coral,

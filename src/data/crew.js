@@ -135,6 +135,67 @@ export const CREW = [
       },
     ],
   },
+  {
+    id: "archaeologist",
+    name: "Robin",
+    role: "Archaeologist",
+    color: "#6a4a7a",
+    quip: "I'd like to see how this ends. That's all.",
+    look: {
+      shirt: 0x5a3f6a, pants: 0x2a2230, skin: 0xd8a87e,
+      hairColor: 0x2a1d18, accent: 0xc9a227,
+      hat: "none", hair: "long", gear: "none",
+    },
+    shipTalks: [
+      {
+        lines: [
+          "Every island out here is a page someone tried to tear out.",
+          "I've spent twenty years reading the ones that survived.",
+          "Keep sailing and we'll find the rest of them.",
+        ],
+      },
+    ],
+  },
+  {
+    id: "shipwright",
+    name: "Franky",
+    role: "Shipwright",
+    color: "#2f8fbf",
+    quip: "She's holding. Because I built her to hold.",
+    look: {
+      shirt: 0x2f8fbf, pants: 0x2f3a4a, skin: 0xd8a87e,
+      hairColor: 0x5fc8e8, accent: 0xe8d24a,
+      hat: "none", hair: "spiky", gear: "backpack", scale: 1.12,
+    },
+    shipTalks: [
+      {
+        lines: [
+          "Show me the hull and I'll tell you what you hit and how fast.",
+          "Nothing out here sinks a ship that's been looked after. Nothing.",
+        ],
+      },
+    ],
+  },
+  {
+    id: "musician",
+    name: "Brook",
+    role: "Musician",
+    color: "#d8d0c0",
+    quip: "A voyage without music is just damp travelling.",
+    look: {
+      shirt: 0x1f1f28, pants: 0x14141a, skin: 0xe8e4d8,
+      hairColor: 0x2a2a34, accent: 0x9a3f5a,
+      hat: "top", hair: "long", gear: "staff", scale: 1.18,
+    },
+    shipTalks: [
+      {
+        lines: [
+          "I spent a very long time alone with only my own playing for company.",
+          "You have no idea how much better it sounds with somebody listening.",
+        ],
+      },
+    ],
+  },
 ];
 
 const BY_ID = new Map(CREW.map((c) => [c.id, c]));

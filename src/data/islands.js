@@ -90,7 +90,53 @@ const STORM = {
   cloudOpacity: 0.92,
 };
 
+const JUNGLE = {
+  sand: 0xd9c89a, wetSand: 0xb6a477, ground: 0x3f7a38, rock: 0x7a7266, high: 0x8a8175,
+  leaf: 0x2f6f33, trunk: 0x5e4328, stone: 0x8a8278, wood: 0x6f4a28,
+  wall: 0xcfc0a0, roof: 0x7a4535, thatch: 0xb2934f, accent: 0xc46a2f, seabed: 0x3f6a58,
+};
+
+const SKY_ISLE = {
+  sand: 0xf2f6f8, wetSand: 0xdfe7ec, ground: 0x7ec46a, rock: 0xe4e8ea, high: 0xfaFDFF,
+  leaf: 0x5fae52, trunk: 0x9a8a6a, stone: 0xeef2f4, wood: 0xcfc2a2,
+  wall: 0xf4f6f2, roof: 0xd8b84a, thatch: 0xe0cf8a, accent: 0xe8c84a, seabed: 0xdfe7ec,
+};
+
+const CANAL = {
+  sand: 0xcfc2a4, wetSand: 0xa89b80, ground: 0x8a9a6a, rock: 0x9a958c, high: 0xa8a29a,
+  leaf: 0x4f8a48, trunk: 0x6b4a2a, stone: 0xbdb4a4, wood: 0x8a5f33,
+  wall: 0xe4d8c0, roof: 0xb4633c, thatch: 0xc0a468, accent: 0x2f7f9f, seabed: 0x46707a,
+};
+
+const HAUNTED = {
+  sand: 0x7e7e84, wetSand: 0x5f5f66, ground: 0x585a62, rock: 0x6a6a74, high: 0x7e7e88,
+  leaf: 0x3d4a42, trunk: 0x4a423c, stone: 0x86868f, wood: 0x554c44,
+  wall: 0x6e6878, roof: 0x4a4454, thatch: 0x6a6478, accent: 0x9a5faa, seabed: 0x333a44,
+  deadWood: 0x50483f,
+};
+
+const MANGROVE = {
+  sand: 0xd8c99e, wetSand: 0xb0a07a, ground: 0x4f8a48, rock: 0x7f7a70, high: 0x8f8a80,
+  leaf: 0x357f3a, trunk: 0x6a4e30, stone: 0x8f8a80, wood: 0x7a5330,
+  wall: 0xd8ccb0, roof: 0x8a5a3a, thatch: 0xbfa268, accent: 0xd86a9a, seabed: 0x3f7060,
+};
+
+const RAREFIED = {
+  top: 0x9fd4ef, horizon: 0xfbfdfe, sun: 0xfffbe8, haze: 0.5,
+  sunIntensity: 2.5, ambientSky: 0xf4fbff, ambientGround: 0xdfe7ec, cloud: 0xffffff,
+};
+// Moonlight has to stay playable: atmospheric is no good if the player cannot
+// see the thing walking toward them. Lifted until enemies read clearly against
+// the ground, and no further.
+const MOONLIT = {
+  top: 0x1b2440, horizon: 0x4d5878, sun: 0xc8d4ee, haze: 0.78,
+  sunIntensity: 0.95, ambientSky: 0x6a7699, ambientGround: 0x3a4050,
+  ambientIntensity: 1.7, cloud: 0x6e768c, cloudOpacity: 0.9,
+};
+
 const BLUE_WATER = { deep: 0x0a3b5c, shallow: 0x2d8fae };
+const CLOUD_SEA = { deep: 0xe8f1f6, shallow: 0xfdfefe, fogDensity: 0.0005 };
+const BLACK_WATER = { deep: 0x080d16, shallow: 0x1c2740, fogDensity: 0.0009 };
 const GREEN_WATER = { deep: 0x0c4450, shallow: 0x35a08f };
 const COLD_WATER = { deep: 0x18394f, shallow: 0x5e93a8 };
 const WARM_WATER = { deep: 0x0f4a6a, shallow: 0x39a7bd };
@@ -130,6 +176,26 @@ const FISHMAN = {
 const HUNTER = {
   shirt: 0x2a2a34, pants: 0x1f1f28, skin: 0xd8a87e, hairColor: 0x1a1a1a,
   accent: 0x8a6a3a, hat: "tricorn", hair: "short", gear: "swords",
+};
+const BULLY = {
+  shirt: 0xc46a2f, pants: 0x3a3a44, skin: 0xd8a87e, hairColor: 0xe0c04a,
+  accent: 0x8a3f2f, hat: "none", hair: "spiky", gear: "none",
+};
+const PRIEST = {
+  shirt: 0xf2f4f0, pants: 0xe0d8c0, skin: 0xd8a87e, hairColor: 0xb8a878,
+  accent: 0xe8c84a, hat: "none", hair: "long", gear: "staff", scale: 1.08,
+};
+const WRECKER = {
+  shirt: 0x3a3a42, pants: 0x24242c, skin: 0xc99a6a, hairColor: 0x1a1a1a,
+  accent: 0x8a8a92, hat: "cap", hair: "short", gear: "none", scale: 1.06,
+};
+const REVENANT = {
+  shirt: 0x4a4452, pants: 0x2f2a36, skin: 0x8fa38a, hairColor: 0x2a2a30,
+  accent: 0x6a4f7a, hat: "none", hair: "long", gear: "none",
+};
+const SLAVER = {
+  shirt: 0x2a2a34, pants: 0x1a1a22, skin: 0xd8a87e, hairColor: 0x3a3a3a,
+  accent: 0x9a7f4a, hat: "top", hair: "short", gear: "rifle", scale: 1.05,
 };
 const AGENT = {
   shirt: 0xc9a86a, pants: 0x6a5a3a, skin: 0xc99a6a, hairColor: 0x2a1d12,
@@ -1748,6 +1814,718 @@ const alabasta = (() => {
 })();
 
 // ============================================================================
+// 12 — Jaya
+// ============================================================================
+
+const jaya = (() => {
+  const town = polar(2.2, 50);
+  const headland = polar(5.3, 104);
+  return {
+    id: "jaya",
+    name: "Jaya",
+    sea: "Grand Line",
+    blurb: "A lawless port where asking the wrong question gets you thrown through a window.",
+    tagline: "the mock town",
+    world: { x: 7900, z: 760 },
+    climate: "tropical",
+    dockAngle: 2.2,
+    ambience: "shore",
+    palette: JUNGLE,
+    landSky: { ...GOLDEN, fogDensity: 0.0017 },
+    seaSky: GOLDEN,
+    seaWater: WARM_WATER,
+    terrain: {
+      radius: 152, baseHeight: 3.4, relief: 7.5, noiseScale: 50, shelfDepth: 17,
+      peaks: [
+        { x: -18, z: -40, height: 52, radius: 48 },
+        { x: headland.x, z: headland.z, height: 26, radius: 26 },
+      ],
+      flats: [
+        { x: town.x, z: town.z, r: 40, height: 5.0 },
+        { x: headland.x, z: headland.z, r: 18, height: 23.0 },
+      ],
+    },
+    places: {
+      town: { x: town.x, z: town.z },
+      headland: { x: headland.x, z: headland.z },
+    },
+    scatter: [
+      { prop: "broadleaf", count: 56, band: { minH: 2, maxSlope: 0.5 }, spacing: 5, scale: [0.9, 1.5] },
+      { prop: "palm", count: 30, band: { minH: 1.4, maxH: 10, maxSlope: 0.35 }, spacing: 5 },
+      { prop: "rock", count: 32, band: { minH: 0.8, maxSlope: 0.95 }, spacing: 3 },
+      { prop: "grassTuft", count: 140, band: { minH: 1.8, maxSlope: 0.55 }, spacing: 1.2 },
+      { prop: "barrel", count: 18, band: { minH: 2.4, maxH: 10, maxSlope: 0.3 }, spacing: 2.4 },
+    ],
+    structures: [
+      ...ringOfHouses(town, 10, 28),
+      ...ringOfHouses(town, 5, 48, "house", 0.8),
+      { prop: "signpost", at: { x: town.x, z: town.z + 17 } },
+      { prop: "lamppost", at: { x: town.x - 9, z: town.z + 11 } },
+      { prop: "lamppost", at: { x: town.x + 9, z: town.z + 11 } },
+      { prop: "hut", at: { x: headland.x, z: headland.z }, scale: 1.2 },
+      { prop: "flagpole", at: { x: headland.x + 9, z: headland.z + 5 } },
+    ],
+    chests: [
+      { at: { angle: 0.4, dist: 0.62 }, berries: 1600, flag: "jaya_chest" },
+    ],
+    enemies: [
+      {
+        id: "bullies",
+        when: { minStep: 1, maxStep: 1 },
+        around: { x: town.x, z: town.z },
+        radius: 22,
+        count: 6,
+        rewardEach: 260,
+        clearAdvancesStep: 1,
+        foe: {
+          name: "Mock Town Tough", title: "the square", hp: 110, damage: 17, speed: 4.2,
+          aggroRange: 24, look: BULLY,
+        },
+      },
+    ],
+    npcs: [
+      {
+        id: "cricket", name: "Cricket", role: "Cartographer",
+        at: { x: headland.x, z: headland.z + 7 },
+        look: {
+          shirt: 0x6a7a8a, pants: 0x3a4452, skin: 0xc99a6a, hairColor: 0x8a8880,
+          accent: 0x2f7f9f, hat: "none", hair: "spiky",
+        },
+        talks: [
+          {
+            when: { maxStep: 1 },
+            lines: [
+              "Everyone in that town knows the way up and not one of them will tell you.",
+              "Clear them out of the square and come back. Then we'll talk about the sky.",
+            ],
+          },
+          {
+            when: { questStep: 2 },
+            lines: [
+              "Forty years they've laughed at me for saying there's an island in the sky.",
+              "There is. A knock-up stream throws you there — a column of sea that goes straight up.",
+              "Ride it and you'll make landfall on cloud. Miss it and you'll make landfall on the seabed.",
+              "There's a woman waiting by your ship, by the way. Been there an hour. Didn't say a word.",
+            ],
+            effects: { advance: true },
+          },
+          {
+            lines: ["Aim for the white water and hold your nerve. That's the whole trick."],
+          },
+        ],
+      },
+      {
+        id: "robin_dock", name: "Robin", role: "Archaeologist",
+        at: { shore: 2.2, shoreHeight: 2.6 },
+        when: { lacksCrew: "archaeologist" },
+        look: {
+          shirt: 0x5a3f6a, pants: 0x2a2230, skin: 0xd8a87e, hairColor: 0x2a1d18,
+          accent: 0xc9a227, hat: "none", hair: "long",
+        },
+        talks: [
+          {
+            when: { maxStep: 2 },
+            lines: ["Don't mind me. I'm reading."],
+          },
+          {
+            when: { questStep: 3 },
+            lines: [
+              "You're going up. Of course you are.",
+              "I've spent twenty years looking for the pieces of history someone went to enormous trouble to bury.",
+              "Every crew that could have taken me there either sold me or sank. Yours has done neither yet.",
+              "That's not much of a recommendation. It's more than I've had.",
+            ],
+            choices: [
+              {
+                label: "\"Come aboard. Read us the world.\"",
+                lines: [
+                  "You didn't ask what I want from it. That's either trust or carelessness.",
+                  "I'll take either. Let's go and see a sky island.",
+                ],
+                effects: { recruit: "archaeologist", completeIsland: true, berries: 1200 },
+              },
+              { label: "\"Stay on your rock.\"", lines: ["Then I'll wait. I'm good at that."] },
+            ],
+          },
+        ],
+      },
+    ],
+    quest: {
+      title: "The Island in the Sky",
+      steps: [
+        { objective: "Ask after the sky island in Mock Town.", marker: "town" },
+        { objective: "The town answers questions with fists. Clear the square.", marker: "town" },
+        { objective: "Find the cartographer on the southern headland.", marker: "headland" },
+        { objective: "Speak to the woman waiting by your ship.", marker: "dock" },
+      ],
+    },
+  };
+})();
+
+// ============================================================================
+// 13 — Skypiea
+// ============================================================================
+
+const skypiea = (() => {
+  const ruins = { x: 4, z: -36 };
+  const village = polar(1.2, 58);
+  return {
+    id: "skypiea",
+    name: "Skypiea",
+    sea: "The White Sea",
+    blurb: "An island that floats on cloud, ten thousand metres above the water you came from.",
+    tagline: "the sea of clouds",
+    world: { x: 8560, z: 1420 },
+    climate: "sky",
+    dockAngle: 1.2,
+    ambience: "wind",
+    proxyFoliage: 26,
+    palette: SKY_ISLE,
+    landSky: { ...RAREFIED, fogDensity: 0.0011 },
+    seaSky: RAREFIED,
+    seaWater: CLOUD_SEA,
+    landWater: CLOUD_SEA,
+    terrain: {
+      radius: 146, baseHeight: 4.2, relief: 5.5, noiseScale: 54, shelfDepth: 13,
+      peaks: [{ x: ruins.x, z: ruins.z, height: 46, radius: 44 }],
+      flats: [
+        { x: village.x, z: village.z, r: 34, height: 6.0 },
+        { x: ruins.x, z: ruins.z, r: 24, height: 44.0 },
+      ],
+    },
+    places: {
+      village: { x: village.x, z: village.z },
+      ruins: { x: ruins.x, z: ruins.z },
+    },
+    scatter: [
+      { prop: "broadleaf", count: 44, band: { minH: 2.4, maxSlope: 0.45 }, spacing: 6, scale: [0.9, 1.4] },
+      { prop: "cloudPuff", count: 70, band: { minH: 1.2, maxH: 8, maxSlope: 0.6 }, spacing: 2.2 },
+      { prop: "rock", count: 22, band: { minH: 2, maxSlope: 0.9 }, spacing: 3.4 },
+      { prop: "grassTuft", count: 150, band: { minH: 2.4, maxSlope: 0.55 }, spacing: 1.2 },
+    ],
+    structures: [
+      ...ringOfHouses(village, 7, 25, "hut"),
+      { prop: "watchtower", at: { x: ruins.x, z: ruins.z }, scale: 2.1 },
+      { prop: "watchtower", at: { x: ruins.x - 20, z: ruins.z + 12 }, scale: 1.2 },
+      { prop: "watchtower", at: { x: ruins.x + 20, z: ruins.z + 12 }, scale: 1.2 },
+      { prop: "flagpole", at: { x: ruins.x, z: ruins.z + 20 } },
+      { prop: "signpost", at: { x: village.x, z: village.z + 14 } },
+    ],
+    beacons: [
+      {
+        id: "reach_ruins", at: { x: ruins.x, z: ruins.z }, radius: 26, advancesStep: 0,
+        text: "Gold and white stone, and a bell that has not been rung in four hundred years.",
+      },
+    ],
+    chests: [
+      { at: { x: ruins.x + 13, z: ruins.z - 10 }, berries: 2400, flag: "sky_chest" },
+    ],
+    enemies: [
+      {
+        id: "trial",
+        when: { minStep: 1, maxStep: 1 },
+        around: { x: ruins.x, z: ruins.z + 12 },
+        radius: 24,
+        count: 6,
+        rewardEach: 300,
+        clearAdvancesStep: 1,
+        foe: {
+          name: "Priest", title: "the trial", hp: 128, damage: 19, speed: 4.3,
+          aggroRange: 28, look: PRIEST,
+        },
+      },
+    ],
+    npcs: [
+      {
+        id: "ganfall", name: "Gan Fall", role: "Sky Knight",
+        at: { x: village.x + 4, z: village.z + 9 },
+        look: {
+          shirt: 0xe4e8ea, pants: 0x9aa4ac, skin: 0xd8a87e, hairColor: 0xd8d4cc,
+          accent: 0xe8c84a, hat: "tricorn", hair: "short", gear: "staff",
+        },
+        talks: [
+          {
+            when: { maxStep: 1 },
+            lines: [
+              "Blue sea dwellers. We don't get many, and they don't often leave.",
+              "The priests hold the upper ring and call it a trial. It is mostly an ambush.",
+            ],
+          },
+          {
+            when: { questStep: 2 },
+            lines: [
+              "You beat the trial. Four hundred years and nobody had simply refused to lose it.",
+              "Ring the bell before you go. There is a city down there under the cloud that has been waiting to hear it.",
+              "Then follow the current down. And thank you — from a country that had stopped expecting help.",
+            ],
+            effects: { completeIsland: true, berries: 1500 },
+          },
+          {
+            lines: ["The bell carries a long way. They will have heard it."],
+          },
+        ],
+      },
+      {
+        id: "conis", name: "Conis", role: "Islander",
+        at: { x: village.x - 11, z: village.z + 5 },
+        look: {
+          shirt: 0xf0f2ee, pants: 0xd8cfa8, skin: 0xefc09a, hairColor: 0xe8d88a,
+          accent: 0x7ec4e0, hat: "none", hair: "long",
+        },
+        talks: [
+          {
+            lines: [
+              "You fell out of the sky and you're worried about the clouds being solid.",
+              "Walk on them. They hold. Everything up here holds, except the people.",
+            ],
+          },
+        ],
+      },
+    ],
+    quest: {
+      title: "The Bell of Shandora",
+      steps: [
+        { objective: "Climb to the white stone ruins.", marker: "ruins" },
+        { objective: "The priests call it a trial. Survive it.", marker: "ruins" },
+        { objective: "Find the sky knight in the village.", marker: "village" },
+      ],
+    },
+  };
+})();
+
+// ============================================================================
+// 14 — Water Seven
+// ============================================================================
+
+const water7 = (() => {
+  const city = polar(0.5, 44);
+  const yard = polar(3.6, 74);
+  return {
+    id: "water7",
+    name: "Water Seven",
+    sea: "Grand Line",
+    blurb: "A city of canals and shipwrights, slowly sinking and entirely unbothered by it.",
+    tagline: "the city of water",
+    world: { x: 9260, z: 2000 },
+    climate: "town",
+    dockAngle: 0.5,
+    ambience: "shore",
+    palette: CANAL,
+    landSky: { ...CLEAR, fogDensity: 0.0015 },
+    seaSky: CLEAR,
+    seaWater: BLUE_WATER,
+    terrain: {
+      radius: 168, baseHeight: 4.0, relief: 5.0, noiseScale: 58, shelfDepth: 16,
+      peaks: [{ x: city.x, z: city.z, height: 30, radius: 52 }],
+      flats: [
+        { x: city.x, z: city.z, r: 46, height: 26.0 },
+        { x: yard.x, z: yard.z, r: 34, height: 4.5 },
+      ],
+    },
+    places: {
+      city: { x: city.x, z: city.z },
+      yard: { x: yard.x, z: yard.z },
+    },
+    scatter: [
+      { prop: "broadleaf", count: 26, band: { minH: 2, maxSlope: 0.4 }, spacing: 7 },
+      { prop: "lamppost", count: 22, band: { minH: 3.5, maxSlope: 0.18 }, spacing: 8 },
+      { prop: "crate", count: 34, band: { minH: 2.4, maxSlope: 0.3 }, spacing: 2.3 },
+      { prop: "barrel", count: 28, band: { minH: 2.4, maxSlope: 0.3 }, spacing: 2.3 },
+      { prop: "rock", count: 18, band: { minH: 0.8, maxSlope: 0.9 }, spacing: 3.4 },
+    ],
+    structures: [
+      ...ringOfHouses(city, 12, 26),
+      ...ringOfHouses(city, 10, 46, "house", 0.9),
+      { prop: "watchtower", at: { x: city.x, z: city.z }, scale: 2.3 },
+      { prop: "windmill", at: { x: city.x + 30, z: city.z - 24 } },
+      ...ringOfHouses(yard, 6, 22),
+      { prop: "cannon", at: { x: yard.x + 12, z: yard.z + 8 }, rotation: 0.3 },
+      { prop: "signpost", at: { x: yard.x, z: yard.z + 15 } },
+      { prop: "flagpole", at: { x: city.x, z: city.z + 22 } },
+    ],
+    chests: [
+      {
+        at: { x: city.x - 16, z: city.z - 14 }, berries: 1200, item: "Stolen blueprints",
+        flag: "w7_blueprints", advancesStep: 1,
+      },
+      { at: { angle: 5.0, dist: 0.7 }, berries: 1800, flag: "w7_chest" },
+    ],
+    enemies: [
+      {
+        id: "wreckers",
+        when: { minStep: 2, maxStep: 2 },
+        around: { x: yard.x, z: yard.z },
+        radius: 24,
+        count: 7,
+        rewardEach: 320,
+        clearAdvancesStep: 2,
+        foe: {
+          name: "Dismantler", title: "the yard", hp: 132, damage: 20, speed: 4.2,
+          aggroRange: 26, look: WRECKER,
+        },
+      },
+    ],
+    npcs: [
+      {
+        id: "iceburg", name: "Iceburg", role: "Foreman",
+        at: { x: city.x + 5, z: city.z + 10 },
+        look: {
+          shirt: 0x2f5f7a, pants: 0x2a2f38, skin: 0xd8a87e, hairColor: 0x2a2a30,
+          accent: 0xc9a227, hat: "none", hair: "short",
+        },
+        talks: [
+          {
+            when: { questStep: 0 },
+            lines: [
+              "Your ship is tired. I can hear it from here, and I've not even seen her keel.",
+              "I'd have my yard put her right, except somebody walked out of my drawing office last night with the plans.",
+              "Find them and the yard is yours. They can't have gone far — nobody leaves this city in a hurry, it's mostly water.",
+            ],
+            effects: { advance: true },
+          },
+          {
+            when: { questStep: 1 },
+            lines: ["Upper city. Try the empty houses on the north terrace."],
+          },
+          {
+            when: { questStep: 2 },
+            lines: [
+              "Those aren't thieves, they're a demolition crew. Somebody wants this yard shut.",
+              "Get them off my slipway.",
+            ],
+          },
+          {
+            when: { questStep: 3 },
+            lines: [
+              "Yard's yours, as promised. There's a man down there who'll do the work.",
+              "He'll tell you he isn't interested. He'll have started before he finishes saying it.",
+            ],
+          },
+          { lines: ["Come back any time. She'll need it, the way you sail."] },
+        ],
+      },
+      {
+        id: "franky_yard", name: "Franky", role: "Shipwright",
+        at: { x: yard.x - 3, z: yard.z + 8 },
+        when: { lacksCrew: "shipwright" },
+        look: {
+          shirt: 0x2f8fbf, pants: 0x2f3a4a, skin: 0xd8a87e, hairColor: 0x5fc8e8,
+          accent: 0xe8d24a, hat: "none", hair: "spiky",
+        },
+        talks: [
+          {
+            when: { maxStep: 2 },
+            lines: ["Busy. There's men with hammers on my slipway and none of them work here."],
+          },
+          {
+            when: { questStep: 3 },
+            lines: [
+              "You cleared my yard and you didn't put a mark on the timber doing it. Noted.",
+              "I looked over your caravel while you were busy. She's been well loved and badly used.",
+              "Whoever built her meant her to go a long way. Nobody's asked her to properly yet.",
+            ],
+            choices: [
+              {
+                label: "\"Then come and ask her. Be our shipwright.\"",
+                lines: [
+                  "Leave my city? My yard? My — ",
+                  "…She'd make the New World. With me aboard she'd make it twice.",
+                  "Fine. FINE. Somebody get my tools. I'm not crying, it's the sawdust.",
+                ],
+                effects: { recruit: "shipwright", completeIsland: true, berries: 1800 },
+              },
+              { label: "\"Just here for repairs.\"", lines: ["Then she'll be sound by morning. Pity."] },
+            ],
+          },
+        ],
+      },
+    ],
+    quest: {
+      title: "The Sinking City",
+      steps: [
+        { objective: "Find the foreman in the upper city.", marker: "city" },
+        { objective: "Recover the stolen blueprints from the north terrace.", marker: "city" },
+        { objective: "Clear the demolition crew off the shipyard.", marker: "yard" },
+        { objective: "Talk to the shipwright in the yard.", marker: "yard" },
+      ],
+    },
+  };
+})();
+
+// ============================================================================
+// 15 — Thriller Bark
+// ============================================================================
+
+const thriller = (() => {
+  const mansion = { x: -6, z: -44 };
+  const yard = polar(0.9, 62);
+  return {
+    id: "thriller",
+    name: "Thriller Bark",
+    sea: "Grand Line",
+    blurb: "An island-sized ship, drifting in permanent fog, and nothing on it casts a shadow.",
+    tagline: "the haunted island",
+    world: { x: 9980, z: 2520 },
+    climate: "haunted",
+    dockAngle: 0.9,
+    ambience: "wind",
+    proxyFoliage: 34,
+    palette: HAUNTED,
+    landSky: { ...MOONLIT, fogDensity: 0.0038 },
+    seaSky: MOONLIT,
+    seaWater: BLACK_WATER,
+    landWater: BLACK_WATER,
+    terrain: {
+      radius: 154, baseHeight: 3.6, relief: 6.5, noiseScale: 46, shelfDepth: 18,
+      peaks: [{ x: mansion.x, z: mansion.z, height: 40, radius: 46 }],
+      flats: [
+        { x: mansion.x, z: mansion.z, r: 30, height: 38.0 },
+        { x: yard.x, z: yard.z, r: 26, height: 5.0 },
+      ],
+    },
+    places: {
+      mansion: { x: mansion.x, z: mansion.z },
+      graveyard: { x: yard.x, z: yard.z },
+    },
+    scatter: [
+      { prop: "deadTree", count: 78, band: { minH: 1.8, maxSlope: 0.55 }, spacing: 4.2, scale: [0.85, 1.5] },
+      { prop: "gravestone", count: 60, band: { minH: 2, maxSlope: 0.4 }, spacing: 2.4 },
+      { prop: "rock", count: 30, band: { minH: 1, maxSlope: 0.95 }, spacing: 3.2 },
+      { prop: "lamppost", count: 12, band: { minH: 3, maxSlope: 0.2 }, spacing: 9 },
+    ],
+    structures: [
+      { prop: "watchtower", at: { x: mansion.x, z: mansion.z }, scale: 2.6 },
+      { prop: "watchtower", at: { x: mansion.x - 22, z: mansion.z + 14 }, scale: 1.5 },
+      { prop: "watchtower", at: { x: mansion.x + 22, z: mansion.z + 14 }, scale: 1.5 },
+      { prop: "fence", at: { x: mansion.x - 6, z: mansion.z + 26 }, rotation: 1.57 },
+      { prop: "fence", at: { x: mansion.x + 6, z: mansion.z + 26 }, rotation: 1.57 },
+      ...ringOfHouses(yard, 5, 22),
+      { prop: "signpost", at: { x: yard.x, z: yard.z + 14 } },
+    ],
+    beacons: [
+      {
+        id: "reach_gates", at: { x: mansion.x, z: mansion.z + 24 }, radius: 24, advancesStep: 0,
+        text: "The gates stand open. Nothing here throws a shadow, including you.",
+      },
+    ],
+    chests: [
+      { at: { x: mansion.x + 14, z: mansion.z - 12 }, berries: 2600, flag: "bark_chest" },
+    ],
+    enemies: [
+      {
+        id: "revenants",
+        when: { minStep: 1, maxStep: 1 },
+        around: { x: mansion.x, z: mansion.z + 10 },
+        radius: 28,
+        count: 9,
+        rewardEach: 300,
+        clearAdvancesStep: 1,
+        foe: {
+          name: "Revenant", title: "the grounds", hp: 118, damage: 18, speed: 3.6,
+          aggroRange: 30, look: REVENANT,
+        },
+      },
+    ],
+    npcs: [
+      {
+        id: "brook_hall", name: "Brook", role: "Musician",
+        at: { x: mansion.x + 3, z: mansion.z + 12 },
+        when: { lacksCrew: "musician" },
+        look: {
+          shirt: 0x1f1f28, pants: 0x14141a, skin: 0xe8e4d8, hairColor: 0x2a2a34,
+          accent: 0x9a3f5a, hat: "top", hair: "long", gear: "staff", scale: 1.18,
+        },
+        talks: [
+          {
+            when: { maxStep: 0 },
+            lines: ["Someone is playing in the hall. It stops when you get close."],
+          },
+          {
+            when: { questStep: 1 },
+            lines: ["Please — clear the grounds first. I have been interrupted for fifty years."],
+          },
+          {
+            when: { questStep: 2 },
+            lines: [
+              "Fifty years on this island with nobody to play to.",
+              "I kept playing anyway. You get very good, and very strange.",
+              "There is a crew I promised to meet again, and I am the only one left who remembers promising.",
+              "So I have a choice: keep waiting on a dead ship, or go and find out how the song ends.",
+            ],
+            choices: [
+              {
+                label: "\"Come and play for us instead.\"",
+                lines: [
+                  "You would have me? Knowing what I am?",
+                  "…Then let me fetch my violin, and we will never have a quiet watch again.",
+                  "A voyage without music is just damp travelling, Captain.",
+                ],
+                effects: { recruit: "musician", completeIsland: true, berries: 2000 },
+              },
+              { label: "\"Some promises keep you.\"", lines: ["Yes. They do. Fair winds to you."] },
+            ],
+          },
+        ],
+      },
+      {
+        id: "lola", name: "Lola", role: "Survivor",
+        at: { x: yard.x - 8, z: yard.z + 6 },
+        look: {
+          shirt: 0x8a4f6a, pants: 0x3a3440, skin: 0xd8a87e, hairColor: 0xc06a8a,
+          accent: 0xe0a0b8, hat: "none", hair: "long",
+        },
+        talks: [
+          {
+            lines: [
+              "Don't go up to the house. Everyone says that and everyone goes anyway.",
+              "If you do get out — take the one playing the violin with you. He's been alone longer than anyone should be.",
+            ],
+          },
+        ],
+      },
+    ],
+    quest: {
+      title: "The Island That Casts No Shadow",
+      steps: [
+        { objective: "Walk up to the mansion gates.", marker: "mansion" },
+        { objective: "Clear the grounds of whatever walks there.", marker: "mansion" },
+        { objective: "Find the musician in the hall.", marker: "mansion" },
+      ],
+    },
+  };
+})();
+
+// ============================================================================
+// 16 — Sabaody Archipelago
+// ============================================================================
+
+const sabaody = (() => {
+  const grove = polar(1.8, 56);
+  const auction = polar(4.6, 78);
+  return {
+    id: "sabaody",
+    name: "Sabaody Archipelago",
+    sea: "Grand Line",
+    blurb: "Mangroves the size of mountains, and the last stop before the New World.",
+    tagline: "the last archipelago",
+    world: { x: 10780, z: 2980 },
+    climate: "tropical",
+    dockAngle: 1.8,
+    ambience: "shore",
+    proxyFoliage: 40,
+    palette: MANGROVE,
+    landSky: { ...GOLDEN, fogDensity: 0.0016 },
+    seaSky: GOLDEN,
+    seaWater: WARM_WATER,
+    terrain: {
+      radius: 180, baseHeight: 3.6, relief: 6.0, noiseScale: 62, shelfDepth: 16,
+      flats: [
+        { x: grove.x, z: grove.z, r: 36, height: 5.5 },
+        { x: auction.x, z: auction.z, r: 30, height: 6.5 },
+      ],
+    },
+    places: {
+      grove: { x: grove.x, z: grove.z },
+      auction: { x: auction.x, z: auction.z },
+    },
+    scatter: [
+      { prop: "mangrove", count: 26, band: { minH: 2, maxSlope: 0.4 }, spacing: 22, scale: [0.85, 1.3] },
+      { prop: "broadleaf", count: 40, band: { minH: 2, maxSlope: 0.5 }, spacing: 6 },
+      { prop: "grassTuft", count: 160, band: { minH: 1.8, maxSlope: 0.55 }, spacing: 1.2 },
+      { prop: "rock", count: 24, band: { minH: 0.8, maxSlope: 0.9 }, spacing: 3.4 },
+      { prop: "coral", count: 18, band: { minH: 0.9, maxH: 2.6, maxSlope: 0.6 }, spacing: 3 },
+    ],
+    structures: [
+      ...ringOfHouses(grove, 8, 26),
+      { prop: "signpost", at: { x: grove.x, z: grove.z + 16 } },
+      { prop: "lamppost", at: { x: grove.x - 9, z: grove.z + 10 } },
+      { prop: "watchtower", at: { x: auction.x, z: auction.z }, scale: 2.0 },
+      { prop: "tent", at: { x: auction.x + 16, z: auction.z + 6 }, scale: 1.6 },
+      { prop: "tent", at: { x: auction.x - 16, z: auction.z + 6 }, scale: 1.6 },
+      { prop: "cannon", at: { x: auction.x, z: auction.z + 18 }, rotation: 0 },
+    ],
+    beacons: [
+      {
+        id: "reach_grove", at: { x: grove.x, z: grove.z }, radius: 24, advancesStep: 0,
+        text: "Roots like cathedral arches, and bubbles coming up through the moss.",
+      },
+    ],
+    chests: [
+      { at: { x: auction.x + 15, z: auction.z - 13 }, berries: 3000, flag: "sab_chest" },
+      { at: { angle: 3.0, dist: 0.66 }, berries: 2200, flag: "sab_chest2" },
+    ],
+    enemies: [
+      {
+        id: "auctioneers",
+        when: { minStep: 1, maxStep: 2 },
+        around: { x: auction.x, z: auction.z + 10 },
+        radius: 26,
+        count: 9,
+        rewardEach: 340,
+        clearAdvancesStep: 1,
+        boss: {
+          id: "auctioneer", name: "The Auctioneer", title: "Sabaody", hp: 520, damage: 26,
+          speed: 4.4, aggroRange: 34, attackCooldown: 1.5, reward: 9000, advancesStep: 2,
+          at: { x: auction.x, z: auction.z - 8 },
+          look: {
+            shirt: 0x2a2a34, pants: 0x1a1a22, skin: 0xd8a87e, hairColor: 0x8a8a92,
+            accent: 0xc9a227, hat: "top", hair: "short", gear: "swords", scale: 1.3,
+          },
+        },
+        foe: {
+          name: "Enforcer", title: "the auction", hp: 140, damage: 21, speed: 4.2,
+          aggroRange: 28, look: SLAVER,
+        },
+      },
+    ],
+    npcs: [
+      {
+        id: "rayleigh", name: "Rayleigh", role: "Coating Craftsman",
+        at: { x: grove.x + 4, z: grove.z + 9 },
+        look: {
+          shirt: 0xe8e2d2, pants: 0x3a3a44, skin: 0xd8a87e, hairColor: 0xd8d4cc,
+          accent: 0x8a6a3a, hat: "none", hair: "long",
+        },
+        talks: [
+          {
+            when: { questStep: 0 },
+            lines: [
+              "You've come a long way on a small ship. That's usually a sign of a good crew or a mad captain.",
+              "I coat hulls for the dive into the New World. It's slow work and I'm in no hurry.",
+              "There's an auction house up the coast selling people. Deal with that first, and we'll talk about your ship.",
+            ],
+          },
+          {
+            when: { minStep: 1, maxStep: 2 },
+            lines: ["The auction house. Up the coast. I'll have the resin ready."],
+          },
+          {
+            when: { questStep: 3 },
+            lines: [
+              "It's quiet up there for the first time in thirty years.",
+              "Your hull's coated. She'll hold pressure now, which is the only thing standing between you and the far side.",
+              "I sailed with a captain once who talked like you do. He made it all the way.",
+              "So will you. Go on — the Log Pose has nothing left to teach you.",
+            ],
+            effects: { completeIsland: true, berries: 6000 },
+          },
+          { lines: ["The resin sets slowly. So does a reputation. Both are worth the wait."] },
+        ],
+      },
+    ],
+    quest: {
+      title: "The Last Archipelago",
+      steps: [
+        { objective: "Walk into the mangrove grove.", marker: "grove" },
+        { objective: "Break up the auction house up the coast.", marker: "auction" },
+        { objective: "Deal with the man running it.", marker: "auction" },
+        { objective: "Return to the coating craftsman.", marker: "grove" },
+      ],
+    },
+  };
+})();
+
+// ============================================================================
 // Traders
 // ============================================================================
 
@@ -1826,9 +2604,16 @@ const TRADERS = {
   whisky: { name: "Mr. 8", greeting: "Now that we're all being truthful — I do also sell rope." },
   drum: { name: "Dalton's Cousin", greeting: "Everything's twice the price and half the stock. It's a winter island." },
   alabasta: { name: "Toto's Boy", greeting: "Water's dearer than powder here. Both are for sale." },
+  jaya: { name: "Masira", greeting: "Cash only, no questions, and don't touch the salvage." },
+  water7: { name: "Kalifa", greeting: "The yard's rates are posted. They are not negotiable." },
+  thriller: { name: "Lola", greeting: "You'd be amazed what washes up here. Some of it's even useful." },
+  sabaody: { name: "Shakky", greeting: "Last honest bar before the New World. Sit down." },
 };
 
-for (const island of Object.values({ foosha, shells, orange, syrup, baratie, arlong, logue, reverse, whisky, drum, alabasta })) {
+for (const island of Object.values({
+  foosha, shells, orange, syrup, baratie, arlong, logue, reverse, whisky, drum,
+  alabasta, jaya, skypiea, water7, thriller, sabaody,
+})) {
   const spec = TRADERS[island.id];
   if (!spec) continue;
   (island.npcs = island.npcs || []).push(shopkeeper(island, spec));
@@ -1838,6 +2623,7 @@ for (const island of Object.values({ foosha, shells, orange, syrup, baratie, arl
 export const ROUTE = [
   foosha, shells, orange, syrup, baratie, arlong,
   logue, reverse, whisky, drum, alabasta,
+  jaya, skypiea, water7, thriller, sabaody,
 ];
 
 export const islandById = (id) => ROUTE.find((i) => i.id === id) || null;

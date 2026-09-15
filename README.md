@@ -2,8 +2,8 @@
 
 A first-person 3D pirate adventure that runs in the browser, built for iPad.
 
-Sail a caravel across an open sea, make landfall on eleven islands from the East
-Blue to the Grand Line, walk each one in first person, talk your way through the
+Sail a caravel across an open sea, make landfall on sixteen islands from the East
+Blue to the edge of the New World, walk each one in first person, talk your way through the
 people who live there, fight when you have to, and gather a crew.
 
 The crossing is not a loading screen. Weather turns as you sail — a squall
@@ -99,8 +99,13 @@ The Log Pose on the HUD points at the next one and tells you how far.
 | 9 | Whisky Peak | Grand Line | A town that welcomes every crew with a feast |
 | 10 | Drum Island | Grand Line | A winter island with no doctors left |
 | 11 | Alabasta | Grand Line | A desert kingdom three years without rain |
+| 12 | Jaya | Grand Line | A lawless port where the wrong question gets you thrown through a window |
+| 13 | Skypiea | The White Sea | An island floating on cloud, ten thousand metres up |
+| 14 | Water Seven | Grand Line | A city of canals and shipwrights, slowly sinking |
+| 15 | Thriller Bark | Grand Line | Permanent fog, and nothing on it casts a shadow |
+| 16 | Sabaody Archipelago | Grand Line | Mangroves the size of mountains, and the last stop |
 
-Six crewmates can be recruited along the way. Once aboard they stand on deck,
+Nine crewmates can be recruited along the way. Once aboard they stand on deck,
 have something to say, and hit harder alongside you ashore.
 
 Progress saves automatically — on landfall, on departure, at every quest beat,
@@ -165,7 +170,8 @@ A few things worth knowing if you want to change it:
 **Adding an island is a data change.** `src/data/islands.js` describes each one
 — terrain shape, palette, what grows there, who lives there, what they want —
 and the generators in `src/world` turn that into somewhere you can walk around.
-No modelling required.
+No modelling required. Skypiea's sea of cloud is the same ocean shader with a
+white palette; Thriller Bark's permanent night is a sky entry and nothing else.
 
 **The sea is one surface.** A disc of water centred on the viewer, with rings
 spaced geometrically so it is dense underfoot and coarse at the horizon. The
@@ -201,7 +207,7 @@ step, the same files a player loads. See [`tests/README.md`](tests/README.md).
 npm install playwright
 python3 -m http.server 8099 &
 node tests/smoke.js       # one voyage: sail, dock, walk, talk, save, resume
-node tests/route.js       # all eleven islands, every quest stage, teardown audited
+node tests/route.js       # all sixteen islands, every quest stage, teardown audited
 node tests/weather.js     # every sea state, and that the hull rides it
 node tests/encounters.js  # cannons, sea kings, patrols, hull damage
 node tests/shop.js        # prices, affordability, upgrades taking effect
@@ -209,7 +215,7 @@ node tests/shop.js        # prices, affordability, upgrades taking effect
 
 `smoke.js` fails on any console error and audits every island's places,
 islanders, chests, beacons, buildings and enemy camps for anything sitting
-underwater or on a cliff face. `route.js` visits all eleven islands, steps
+underwater or on a cliff face. `route.js` visits all sixteen islands, steps
 through each quest stage to confirm gated enemies appear on cue, lands a hit on
 one, and — by hooking geometry disposal — verifies that leaving an island
 releases everything it allocated except the ship.

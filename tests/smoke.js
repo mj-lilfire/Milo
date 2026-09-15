@@ -58,6 +58,7 @@ async function visiblePrompt(page) {
   const sailing = await page.evaluate(() => ({
     state: window.game.state,
     islands: window.game.sailing.islandProxies.length,
+    routeLength: window.game.sailing.ctx.route.length,
     sceneChildren: window.game.sailing.scene.children.length,
     hasShip: !!window.game.sailing.ship,
     drawCalls: window.game.engine.renderer.info.render.calls,
@@ -65,7 +66,8 @@ async function visiblePrompt(page) {
     px: window.game.engine.pixelRatio,
   }));
   check("entered sailing mode", sailing.state === "sailing", JSON.stringify(sailing));
-  check("all 11 islands present at sea", sailing.islands === 11);
+  check("every island on the route is present at sea",
+    sailing.islands === sailing.routeLength, `${sailing.islands} of ${sailing.routeLength}`);
   check("sea renders geometry", sailing.triangles > 10000, `${sailing.triangles} tris`);
   check("sea draw calls stay low", sailing.drawCalls < 120, `${sailing.drawCalls} calls`);
   await page.screenshot({ path: `${SHOTS}/02-deck.png` });
@@ -266,11 +268,17 @@ async function visiblePrompt(page) {
   // --- journal ------------------------------------------------------------
   await page.click("#btn-journal");
   await page.waitForTimeout(500);
-  const journal = await page.evaluate(() => ({
-    visible: !document.getElementById("journal").classList.contains("hidden"),
-    rows: document.querySelectorAll(".route-item").length,
-  }));
-  check("captain's log lists the route", journal.visible && journal.rows === 11, `${journal.rows} rows`);
+  const journal = await page.evaluate(async () => {
+    const { ROUTE } = await import("./src/data/islands.js");
+    return {
+      visible: !document.getElementById("journal").classList.contains("hidden"),
+      rows: document.querySelectorAll(".route-item").length,
+      expected: ROUTE.length,
+    };
+  });
+  check("captain's log lists the whole route",
+    journal.visible && journal.rows === journal.expected,
+    `${journal.rows} rows, ${journal.expected} islands`);
   await page.screenshot({ path: `${SHOTS}/08-journal.png` });
 
   // --- leaving an island and getting back under way -----------------------
