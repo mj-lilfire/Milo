@@ -1,6 +1,7 @@
 import * as THREE from "../../vendor/three-0.160.1.module.min.js";
 import { TAU, damp, dampAngle } from "../core/utils.js";
 import { box, cyl, cone, sphere, at, merge, propMaterial } from "./geom.js";
+import { shadowed } from "../core/engine.js";
 
 /**
  * Procedural low-poly people.
@@ -143,32 +144,56 @@ export function createCharacter(spec = {}) {
   const mk = (geo) => new THREE.Mesh(geo, SHARED_MATERIAL);
 
   // --- torso --------------------------------------------------------------
+  // Proportioned rather than boxed: a tapered chest into a narrower waist, a
+  // visible neck, and a head a size smaller than the old one. The silhouette
+  // is most of what tells a viewer whether they are looking at a person or at
+  // a stack of crates.
   const torsoParts = [
-    at(box(0.54, 0.62, 0.3, s.shirt), { y: 1.12 }),
-    at(box(0.5, 0.2, 0.32, s.accent), { y: 0.83 }),      // sash / belt
-    at(box(0.36, 0.24, 0.32, s.pants), { y: 0.74 }),      // hips
+    at(box(0.46, 0.44, 0.26, s.shirt), { y: 1.28 }),          // chest
+    at(box(0.40, 0.22, 0.235, s.shirt), { y: 1.00 }),         // waist
+    at(box(0.44, 0.10, 0.25, s.accent), { y: 0.87 }),         // belt
+    at(box(0.38, 0.18, 0.25, s.pants), { y: 0.78 }),          // hips
+    at(cyl(0.075, 0.085, 0.13, s.skin, 6), { y: 1.545 }),     // neck
   ];
+
+  // An open coat or jacket, if the character wears one. Two front panels and
+  // a back, so it reads as worn over the shirt rather than as another shirt.
+  if (s.coat) {
+    const c = s.coat;
+    // The two front panels nearly meet: leave a wide gap and the shirt behind
+    // reads as a bright slab across the chest, which looks like a sandwich
+    // board rather than a coat worn open.
+    torsoParts.push(at(box(0.21, 0.62, 0.285, c), { x: -0.155, y: 1.18 }));
+    torsoParts.push(at(box(0.21, 0.62, 0.285, c), { x: 0.155, y: 1.18 }));
+    torsoParts.push(at(box(0.48, 0.64, 0.10, c), { y: 1.20, z: -0.135 }));
+    torsoParts.push(at(box(0.52, 0.13, 0.29, c), { y: 1.45 }));   // shoulders
+    // A collar, which is what actually says "coat" at a glance.
+    torsoParts.push(at(box(0.13, 0.16, 0.10, c), { x: -0.085, y: 1.50, z: 0.115, rz: 0.3 }));
+    torsoParts.push(at(box(0.13, 0.16, 0.10, c), { x: 0.085, y: 1.50, z: 0.115, rz: -0.3 }));
+  }
+
   const gear = gearGeometry(s.gear, s);
-  if (gear && s.gear !== "slingshot" && s.gear !== "rifle") {
-    torsoParts.push(at(gear, { y: 1.0 }));
+  if (gear && s.gear !== "slingshot" && s.gear !== "rifle" && s.gear !== "staff") {
+    torsoParts.push(at(gear, { y: 1.05 }));
   }
   const torso = mk(merge(torsoParts));
   body.add(torso);
 
   // --- head ---------------------------------------------------------------
   const headPivot = new THREE.Group();
-  headPivot.position.y = 1.43;
+  headPivot.position.y = 1.61;
   body.add(headPivot);
 
   const headParts = [
-    at(box(0.3, 0.32, 0.29, s.skin), { y: 0.16 }),
-    at(box(0.06, 0.05, 0.03, 0x1a1a1a), { x: -0.08, y: 0.19, z: 0.15 }),
-    at(box(0.06, 0.05, 0.03, 0x1a1a1a), { x: 0.08, y: 0.19, z: 0.15 }),
+    at(box(0.26, 0.29, 0.255, s.skin), { y: 0.145 }),
+    at(box(0.052, 0.042, 0.03, 0x1a1a1a), { x: -0.068, y: 0.175, z: 0.132 }),
+    at(box(0.052, 0.042, 0.03, 0x1a1a1a), { x: 0.068, y: 0.175, z: 0.132 }),
+    at(box(0.10, 0.03, 0.03, 0x8a5a4a), { y: 0.085, z: 0.132 }),   // mouth
   ];
   const hair = hairGeometry(s.hair, s.hairColor);
-  if (hair) headParts.push(at(hair, { y: 0.16, s: 0.18 }));
+  if (hair) headParts.push(at(hair, { y: 0.145, s: 0.155 }));
   const hat = hatGeometry(s.hat, s);
-  if (hat) headParts.push(at(hat, { y: 0.31, s: 0.18 }));
+  if (hat) headParts.push(at(hat, { y: 0.285, s: 0.158 }));
   const head = mk(merge(headParts));
   headPivot.add(head);
 
@@ -182,23 +207,30 @@ export function createCharacter(spec = {}) {
     return pivot;
   };
 
-  const armL = limb(0.15, 0.56, s.shirt, -0.345, 1.37);
-  const armR = limb(0.15, 0.56, s.shirt, 0.345, 1.37);
+  const sleeve = s.coat || s.shirt;
+  const armL = limb(0.13, 0.60, sleeve, -0.295, 1.475);
+  const armR = limb(0.13, 0.60, sleeve, 0.295, 1.475);
   // Hands, so a sleeve doesn't just stop in mid-air.
-  armL.add(mk(at(box(0.16, 0.14, 0.16, s.skin), { y: -0.61 })));
-  armR.add(mk(at(box(0.16, 0.14, 0.16, s.skin), { y: -0.61 })));
+  armL.add(mk(at(box(0.135, 0.13, 0.135, s.skin), { y: -0.655 })));
+  armR.add(mk(at(box(0.135, 0.13, 0.135, s.skin), { y: -0.655 })));
 
-  const legL = limb(0.18, 0.74, s.pants, -0.13, 0.76);
-  const legR = limb(0.18, 0.74, s.pants, 0.13, 0.76);
-  legL.add(mk(at(box(0.2, 0.12, 0.28, 0x3a2a1c), { y: -0.78, z: 0.04 })));
-  legR.add(mk(at(box(0.2, 0.12, 0.28, 0x3a2a1c), { y: -0.78, z: 0.04 })));
+  const legL = limb(0.155, 0.80, s.pants, -0.115, 0.80);
+  const legR = limb(0.155, 0.80, s.pants, 0.115, 0.80);
+  // Boots: a little wider than the leg, which grounds the stance.
+  legL.add(mk(at(box(0.185, 0.20, 0.175, s.boots ?? 0x3a2a1c), { y: -0.86 })));
+  legR.add(mk(at(box(0.185, 0.20, 0.175, s.boots ?? 0x3a2a1c), { y: -0.86 })));
+  legL.add(mk(at(box(0.19, 0.075, 0.28, s.boots ?? 0x3a2a1c), { y: -0.925, z: 0.05 })));
+  legR.add(mk(at(box(0.19, 0.075, 0.28, s.boots ?? 0x3a2a1c), { y: -0.925, z: 0.05 })));
 
   // Held gear rides in the right hand.
   if (gear && (s.gear === "slingshot" || s.gear === "rifle" || s.gear === "staff")) {
-    armR.add(mk(at(gear, { y: -0.62 })));
+    armR.add(mk(at(gear, { y: -0.66 })));
   }
 
   group.scale.setScalar(s.scale);
+  // People cast, but do not receive: at this size self-shadowing is all acne
+  // and no benefit.
+  shadowed(group, { receive: false });
 
   const parts = { body, torso, headPivot, armL, armR, legL, legR };
   return new CharacterRig(group, parts, s);

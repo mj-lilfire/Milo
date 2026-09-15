@@ -68,7 +68,27 @@ export class Sky {
 
     this.sunLight = new THREE.DirectionalLight(0xfff1d4, 2.1);
     this.sunLight.position.set(0.4, 0.72, 0.56).multiplyScalar(300);
+
+    // The shadow frustum is a box that travels with the viewer rather than
+    // covering the island: a map stretched over a 400-metre island has no
+    // resolution left for the things you are actually standing next to.
+    this.sunLight.castShadow = true;
+    const mobile = /iPad|iPhone|iPod|Android/.test(navigator.userAgent)
+      || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+    const size = mobile ? 1024 : 2048;
+    this.sunLight.shadow.mapSize.set(size, size);
+    const cam = this.sunLight.shadow.camera;
+    const extent = 85;
+    cam.left = -extent; cam.right = extent;
+    cam.top = extent; cam.bottom = -extent;
+    cam.near = 20;
+    cam.far = 620;
+    cam.updateProjectionMatrix();
+    this.sunLight.shadow.bias = -0.0012;
+    this.sunLight.shadow.normalBias = 0.5;
+
     scene.add(this.sunLight);
+    scene.add(this.sunLight.target);
 
     this.ambient = new THREE.HemisphereLight(0xbcd8e8, 0x4a5f52, 1.15);
     scene.add(this.ambient);
@@ -96,6 +116,7 @@ export class Sky {
     });
     this.cloudMaterial = material;
     const blobGeo = new THREE.IcosahedronGeometry(1, 1);
+    this.cloudGeo = blobGeo;
 
     for (let i = 0; i < count; i++) {
       const cloud = new THREE.Group();
@@ -168,6 +189,26 @@ export class Sky {
     return this.uniforms.uSun.value;
   }
 
+  /**
+   * Release what the scene graph cannot.
+   *
+   * A shadow-casting light allocates a render target the first time it draws,
+   * and that target is owned by the light rather than by the scene — so
+   * disposing the island's objects leaves it behind. One per landfall is a
+   * slow but real leak on a device with a fixed texture budget.
+   */
+  dispose() {
+    this.sunLight.shadow.map?.dispose();
+    this.sunLight.shadow.map = null;
+    this.sunLight.dispose?.();
+    this.dome.geometry.dispose();
+    this.dome.material.dispose();
+    this.cloudGeo?.dispose();
+    this.cloudMaterial.dispose();
+    this.birdGeo.dispose();
+    this.birdMat.dispose();
+  }
+
   update(dt, time, cameraPos) {
     this.drift += dt;
 
@@ -196,9 +237,16 @@ export class Sky {
     }
 
     // The sun light follows the player so island shading stays consistent
-    // however far you sail from the origin.
-    this.sunLight.position.copy(this.sunDirection).multiplyScalar(300).add(cameraPos);
-    this.sunLight.target.position.copy(cameraPos);
+    // however far you sail from the origin. The shadow frustum rides along
+    // with it, snapped to a grid so shadow edges don't crawl as you walk.
+    const snap = 2;
+    const sx = Math.round(cameraPos.x / snap) * snap;
+    const sz = Math.round(cameraPos.z / snap) * snap;
+    this.sunLight.position.copy(this.sunDirection).multiplyScalar(300);
+    this.sunLight.position.x += sx;
+    this.sunLight.position.z += sz;
+    this.sunLight.target.position.set(sx, 0, sz);
     this.sunLight.target.updateMatrixWorld();
+    this.sunLight.updateMatrixWorld();
   }
 }

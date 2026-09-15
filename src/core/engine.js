@@ -19,7 +19,15 @@ export class Engine {
     this.renderer.setClearColor(0x87b9d6);
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    this.renderer.toneMappingExposure = 1.05;
+    // A touch under the old 1.05, which gives the shadows somewhere to sit
+    // without draining the picture.
+    this.renderer.toneMappingExposure = 1.0;
+
+    // Cast shadows. Nothing else does as much for how grounded the world
+    // looks — without them everything appears to hover a little.
+    this.renderer.shadowMap.enabled = true;
+    this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    this.renderer.shadowMap.autoUpdate = true;
 
     this.camera = new THREE.PerspectiveCamera(70, 1, 0.1, 9000);
     this.scene = null;
@@ -102,6 +110,21 @@ export class Engine {
   stop() {
     if (this.frameHandle) cancelAnimationFrame(this.frameHandle);
   }
+}
+
+/**
+ * Mark a subtree as taking part in shadowing.
+ *
+ * `receive` is off for small props and people: a character receiving its own
+ * shadow map at this scale mostly produces acne, and the cost is real.
+ */
+export function shadowed(root, { cast = true, receive = true } = {}) {
+  root.traverse((obj) => {
+    if (!obj.isMesh) return;
+    obj.castShadow = cast;
+    obj.receiveShadow = receive;
+  });
+  return root;
 }
 
 /**

@@ -162,8 +162,9 @@ function ringOfHouses(hub, count, radius, prop = "house", startAngle = 0.3) {
 // --- enemy looks ------------------------------------------------------------
 
 const MARINE = {
-  shirt: 0xf0f0ec, pants: 0x24406e, skin: 0xe3b184, hairColor: 0x3a2a1c,
-  accent: 0x24406e, hat: "marine", hair: "short", gear: "rifle",
+  shirt: 0xf0f0ec, coat: 0xe8e8e2, pants: 0x24406e, skin: 0xe3b184,
+  hairColor: 0x3a2a1c, accent: 0x24406e, boots: 0x22252c,
+  hat: "marine", hair: "short", gear: "rifle",
 };
 const THUG = {
   shirt: 0xb8462f, pants: 0x3a3a46, skin: 0xdca97e, hairColor: 0x6a3a2a,

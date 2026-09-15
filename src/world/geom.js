@@ -14,9 +14,33 @@ const _q = new THREE.Quaternion();
 const _e = new THREE.Euler();
 const _v = new THREE.Vector3();
 
+/**
+ * Global colour grade.
+ *
+ * The palettes were authored bright and cartoon-saturated. Pulling the
+ * saturation down and lifting the blacks slightly is most of the difference
+ * between "illustration" and "photographed": real sunlight on real cloth is a
+ * lot less vivid than it feels like it should be.
+ */
+// Tuned by eye against screenshots. The first pass at 0.74/0.94 was not
+// "grounded", it was "overcast and miserable" — enough saturation came out
+// that cream sails read as olive. This takes the cartoon edge off and stops.
+const GRADE = { saturation: 0.86, lightness: 1.0, lift: 0.012 };
+const _hsl = { h: 0, s: 0, l: 0 };
+
+export function grade(c) {
+  c.getHSL(_hsl);
+  c.setHSL(
+    _hsl.h,
+    _hsl.s * GRADE.saturation,
+    Math.min(1, _hsl.l * GRADE.lightness + GRADE.lift)
+  );
+  return c;
+}
+
 /** Paint every vertex of a geometry one colour. Returns the same geometry. */
 export function paint(geo, color) {
-  const c = new THREE.Color(color);
+  const c = grade(new THREE.Color(color));
   const count = geo.attributes.position.count;
   const arr = new Float32Array(count * 3);
   for (let i = 0; i < count; i++) {

@@ -94,8 +94,12 @@ const check = (n, c, d = "") => { if (!c) { fails++; console.log(`FAIL  ${n}${d 
   check("hits show a threat bar", killed.barShown && killed.barName === "Sea King", JSON.stringify(killed));
   check("killing it pays out", killed.gained > 0, `+${killed.gained} Berries`);
   check("it dives when beaten", killed.state === "dying", killed.state);
-  await page.waitForTimeout(4000);
-  check("the carcass is cleaned up", await page.evaluate(() => !window.game.sailing.encounters.seaKing));
+  // Wait on the condition, not the clock: how much simulated time a wall
+  // second buys varies a lot with renderer speed.
+  const cleaned = await page.waitForFunction(
+    () => !window.game.sailing.encounters.seaKing, null, { timeout: 20000 }
+  ).then(() => true).catch(() => false);
+  check("the carcass is cleaned up", cleaned);
 
   // --- patrol ship --------------------------------------------------------
   await page.evaluate(() => {

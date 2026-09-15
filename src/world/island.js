@@ -3,7 +3,7 @@ import { TAU, makeRng, hashString, range } from "../core/utils.js";
 import { Terrain } from "./terrain.js";
 import { buildProp } from "./props.js";
 import { box, cyl, at, merge, propMaterial } from "./geom.js";
-import { disposeObject } from "../core/engine.js";
+import { disposeObject, shadowed } from "../core/engine.js";
 
 /**
  * Turns an island data spec into geometry, colliders and anchor points.
@@ -229,11 +229,13 @@ export function buildIsland(spec) {
   if (propGeos.length) {
     const mesh = new THREE.Mesh(merge(propGeos), material);
     mesh.name = "props";
+    shadowed(mesh);
     group.add(mesh);
   }
   if (decorGeos.length) {
     const mesh = new THREE.Mesh(merge(decorGeos), material);
     mesh.name = "decor";
+    shadowed(mesh, { receive: false });
     group.add(mesh);
   }
 

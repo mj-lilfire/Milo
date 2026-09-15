@@ -16,8 +16,8 @@ export const CREW = [
     color: "#3f7d4a",
     quip: "Wake me when there's something worth cutting.",
     look: {
-      shirt: 0x2f6f4a, pants: 0x22272e, skin: 0xe3b184,
-      hairColor: 0x4f7a3a, accent: 0x2f7f4f,
+      shirt: 0xe8e4d8, coat: 0x1f3a2c, pants: 0x22272e, skin: 0xe3b184,
+      hairColor: 0x4f7a3a, accent: 0x2f7f4f, boots: 0x2a2620,
       hat: "bandana", hair: "short", gear: "swords",
     },
     shipTalks: [
@@ -41,8 +41,8 @@ export const CREW = [
     color: "#e0762f",
     quip: "The Log Pose is set. Try not to sink us.",
     look: {
-      shirt: 0xe8e3d8, pants: 0x2f4f7a, skin: 0xefc09a,
-      hairColor: 0xe0762f, accent: 0xd85a3a,
+      shirt: 0xdfe6ee, pants: 0x35507e, skin: 0xefc09a,
+      hairColor: 0xd9682a, accent: 0xc8523a, boots: 0x8a5a3a,
       hat: "none", hair: "long", gear: "staff",
     },
     shipTalks: [
@@ -62,8 +62,8 @@ export const CREW = [
     color: "#c9a227",
     quip: "I've got eight thousand men. They're just… elsewhere.",
     look: {
-      shirt: 0xd8b23a, pants: 0x6b4a2a, skin: 0xa97048,
-      hairColor: 0x2a1d12, accent: 0xc9a227,
+      shirt: 0xd8b23a, coat: 0x6f5030, pants: 0x5a4028, skin: 0xa97048,
+      hairColor: 0x2a1d12, accent: 0xc9a227, boots: 0x4a3524,
       hat: "bandana", hair: "short", gear: "slingshot",
     },
     shipTalks: [
@@ -82,8 +82,8 @@ export const CREW = [
     color: "#2b2b38",
     quip: "Nobody starves on my ship. Not even you.",
     look: {
-      shirt: 0x23232e, pants: 0x1a1a22, skin: 0xefc09a,
-      hairColor: 0xe8cf6a, accent: 0xd8d0c0,
+      shirt: 0xf2f0ea, coat: 0x1c1c24, pants: 0x1a1a22, skin: 0xefc09a,
+      hairColor: 0xe0c65e, accent: 0x14141a, boots: 0x14141a,
       hat: "none", hair: "swirl", gear: "none",
     },
     shipTalks: [
@@ -102,9 +102,9 @@ export const CREW = [
     color: "#c86a5a",
     quip: "I'm not cute! …Say it again though.",
     look: {
-      shirt: 0xd06a5a, pants: 0x8a5a3a, skin: 0xd9a97f,
-      hairColor: 0x8a5a3a, accent: 0xd94f4f,
-      hat: "antlers", hair: "short", gear: "backpack", scale: 0.62,
+      shirt: 0xe8e2d4, coat: 0xc2493c, pants: 0x7a5236, skin: 0xd9a97f,
+      hairColor: 0x8a5a3a, accent: 0xa83a30, boots: 0x5a3a26,
+      hat: "antlers", hair: "short", gear: "backpack", scale: 0.66,
     },
     shipTalks: [
       {
@@ -122,8 +122,8 @@ export const CREW = [
     color: "#5aa9d0",
     quip: "My country is close now. Thank you for this.",
     look: {
-      shirt: 0x7ec4e0, pants: 0xe8e3d8, skin: 0xefc09a,
-      hairColor: 0x6aa8d8, accent: 0xd8d0c0,
+      shirt: 0x8fcfe6, pants: 0xe4ded0, skin: 0xefc09a,
+      hairColor: 0x5f9fd4, accent: 0xd8d0c0, boots: 0xc8b89a,
       hat: "none", hair: "long", gear: "none",
     },
     shipTalks: [
@@ -142,8 +142,8 @@ export const CREW = [
     color: "#6a4a7a",
     quip: "I'd like to see how this ends. That's all.",
     look: {
-      shirt: 0x5a3f6a, pants: 0x2a2230, skin: 0xd8a87e,
-      hairColor: 0x2a1d18, accent: 0xc9a227,
+      shirt: 0xd8cfc0, coat: 0x43304f, pants: 0x241d2b, skin: 0xd8a87e,
+      hairColor: 0x2a1d18, accent: 0x8a6a3a, boots: 0x241d2b,
       hat: "none", hair: "long", gear: "none",
     },
     shipTalks: [
@@ -163,8 +163,8 @@ export const CREW = [
     color: "#2f8fbf",
     quip: "She's holding. Because I built her to hold.",
     look: {
-      shirt: 0x2f8fbf, pants: 0x2f3a4a, skin: 0xd8a87e,
-      hairColor: 0x5fc8e8, accent: 0xe8d24a,
+      shirt: 0xe4e0d4, coat: 0x2779a4, pants: 0x2f3a4a, skin: 0xd8a87e,
+      hairColor: 0x53bfe0, accent: 0xe8d24a, boots: 0x22282f,
       hat: "none", hair: "spiky", gear: "backpack", scale: 1.12,
     },
     shipTalks: [
@@ -183,8 +183,8 @@ export const CREW = [
     color: "#d8d0c0",
     quip: "A voyage without music is just damp travelling.",
     look: {
-      shirt: 0x1f1f28, pants: 0x14141a, skin: 0xe8e4d8,
-      hairColor: 0x2a2a34, accent: 0x9a3f5a,
+      shirt: 0xe0dcd2, coat: 0x191922, pants: 0x14141a, skin: 0xe8e4d8,
+      hairColor: 0x2a2a34, accent: 0x8a2f4a, boots: 0x14141a,
       hat: "top", hair: "long", gear: "staff", scale: 1.18,
     },
     shipTalks: [

@@ -1,5 +1,6 @@
 import * as THREE from "../../vendor/three-0.160.1.module.min.js";
 import { clamp, lerp } from "../core/utils.js";
+import { shadowed } from "../core/engine.js";
 import { box, cyl, cone, ico, sphere, at, merge, propMaterial, paint, flatten } from "./geom.js";
 
 /**
@@ -270,8 +271,10 @@ export function createShip() {
   group.add(new THREE.Mesh(merge(rig), material));
 
   // --- sails (animated separately so they can furl) ------------------------
+  // White base: the vertex colours already carry the canvas tone, and tinting
+  // the material as well multiplied the two together and turned cream olive.
   const sailMat = new THREE.MeshLambertMaterial({
-    color: 0xf2ead6, side: THREE.DoubleSide, vertexColors: true,
+    color: 0xffffff, side: THREE.DoubleSide, vertexColors: true,
   });
 
   const mainSail = new THREE.Mesh(
@@ -364,6 +367,8 @@ export function createShip() {
   const wake = new THREE.Mesh(wakeGeo, wakeMat);
   wake.position.set(0, 0.1, -SHIP.length / 2 - 15);
   group.add(wake);
+
+  shadowed(group);
 
   return {
     group,

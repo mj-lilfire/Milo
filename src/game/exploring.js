@@ -6,6 +6,7 @@ import { buildIsland, createChest, resolvePlace, LAND_MIN_HEIGHT } from "../worl
 import { createCharacter, createLabel } from "../world/character.js";
 import { Enemy, playerStrike } from "./combat.js";
 import { matches } from "./quests.js";
+import { makeFollower, updateParty } from "./followers.js";
 import { disposeObject } from "../core/engine.js";
 import { SHIP } from "../world/ship.js";
 
@@ -121,13 +122,16 @@ export class ExploringMode {
     this.npcs = [];
     const all = [...(this.spec.npcs || [])];
 
-    // Recruited crew wander the island alongside their captain.
+    // Recruited crew come ashore with their captain and follow them around.
+    const crewDefs = [];
     if (this.spec.crewAshore !== false) {
       progress.crew.forEach((id, i) => {
         const member = crewById(id);
         if (!member) return;
-        all.push({
+        crewDefs.push({
           id: "crew:" + id,
+          crewId: id,
+          member,
           name: member.name,
           role: member.role,
           look: member.look,
@@ -136,12 +140,20 @@ export class ExploringMode {
           talks: member.shipTalks || [{ lines: [`${member.quip || "Ready when you are, Captain."}`] }],
         });
       });
+      all.push(...crewDefs);
     }
 
     for (const def of all) {
       if (def.when && !matches(def.when, progress, this.spec.id)) continue;
+      // Crew come down the jetty onto the beach, not off the end of it: the
+      // landing point sits out over open water, so offsetting around it drops
+      // people straight into the sea.
       const pos = def.nearDock
-        ? this.offsetFrom(this.island.dock.landing, def.at)
+        ? resolvePlace(
+            this.offsetFrom(this.island.dock.inland, def.at),
+            this.island.terrain,
+            LAND_MIN_HEIGHT
+          )
         : resolvePlace(def.at, this.island.terrain, LAND_MIN_HEIGHT);
       const y = this.island.terrain.heightAt(pos.x, pos.z);
 
@@ -156,8 +168,14 @@ export class ExploringMode {
       rig.group.add(label);
 
       this.scene.add(rig.group);
-      this.npcs.push({ def, rig, home: new THREE.Vector3(pos.x, y, pos.z), label });
+      const record = { def, rig, home: new THREE.Vector3(pos.x, y, pos.z), label };
+      if (def.crewId) {
+        record.member = def.member;
+        makeFollower(record, crewDefs.indexOf(def), crewDefs.length);
+      }
+      this.npcs.push(record);
     }
+    this.followers = this.npcs.filter((n) => n.follower);
   }
 
   offsetFrom(base, at) {
@@ -554,15 +572,22 @@ export class ExploringMode {
     label.scale.multiplyScalar(0.8);
     rig.group.add(label);
     this.scene.add(rig.group);
-    this.npcs.push({
+    const record = {
       def: {
-        id: "crew:" + id, name: member.name, role: member.role,
+        id: "crew:" + id, crewId: id, name: member.name, role: member.role,
         talks: member.shipTalks || [{ lines: [member.quip || "Let's go, Captain."] }],
       },
       rig,
+      member,
       home: rig.group.position.clone(),
       label,
-    });
+    };
+    // They fall in with the rest of the party immediately, rather than waiting
+    // for the next landfall to start following.
+    this.followers = this.followers || [];
+    makeFollower(record, this.followers.length, this.followers.length + 1);
+    this.npcs.push(record);
+    this.followers.push(record);
   }
 
   // --- frame ----------------------------------------------------------------
@@ -592,10 +617,21 @@ export class ExploringMode {
     this.attackCooldown = Math.max(0, this.attackCooldown - dt);
     if (input.consume("attack")) this.tryAttack();
 
+    // The party moves itself; everyone else just turns to look.
+    updateParty(this.followers || [], dt, {
+      terrain: this.island.terrain,
+      colliders: this.island.colliders,
+      enemies: this.enemies,
+      player,
+      audio: this.ctx.audio,
+    });
+
     for (const npc of this.npcs) {
       const d = npc.rig.group.position.distanceTo(player.position);
-      if (d < 6 && npc.rig.state !== "talk") npc.rig.facePoint(player.position.x, player.position.z);
-      npc.rig.update(dt, 0);
+      if (!npc.follower) {
+        if (d < 6 && npc.rig.state !== "talk") npc.rig.facePoint(player.position.x, player.position.z);
+        npc.rig.update(dt, 0);
+      }
       npc.label.visible = d < 30;
     }
     for (const e of this.enemies) e.update(dt, player.position, { peaceful: this.dying });
@@ -660,12 +696,14 @@ export class ExploringMode {
       npc.label.material.map?.dispose();
       npc.label.material.dispose();
     }
+    this.sky?.dispose();
     this.island?.dispose();
     if (this.scene) disposeObject(this.scene);
 
     this.scene = null;
     this.island = null;
     this.npcs = [];
+    this.followers = [];
     this.enemies = [];
     this.chests = [];
     this.enemyGroups = null;

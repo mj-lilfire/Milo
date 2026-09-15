@@ -1,5 +1,6 @@
 import * as THREE from "../../vendor/three-0.160.1.module.min.js";
 import { TAU, clamp, lerp, smoothstep, fbm, hashString } from "../core/utils.js";
+import { grade } from "./geom.js";
 
 /**
  * Island terrain.
@@ -114,17 +115,19 @@ export class Terrain {
   colorAt(h, slope) {
     const p = this.palette;
     const c = new THREE.Color();
-    if (h < -0.35) return c.set(p.seabed || 0x5c6f52);
+    // Ground goes through the same grade as everything else, or the terrain
+    // would be the one vivid thing in an otherwise muted world.
+    if (h < -0.35) return grade(c.set(p.seabed || 0x5c6f52));
     if (h < 1.15) {
       // Wet sand right at the waterline, dry sand above it.
-      return c.set(p.sand).lerp(new THREE.Color(p.wetSand || p.sand), clamp(1 - h / 1.15, 0, 1) * 0.55);
+      return grade(c.set(p.sand).lerp(new THREE.Color(p.wetSand || p.sand), clamp(1 - h / 1.15, 0, 1) * 0.55));
     }
-    if (slope > 0.42) return c.set(p.rock);
+    if (slope > 0.42) return grade(c.set(p.rock));
     const highT = clamp((h - (this.spec.highBand ?? 22)) / 16, 0, 1);
     const base = new THREE.Color(p.ground);
     if (highT > 0) base.lerp(new THREE.Color(p.high || p.rock), highT);
     if (slope > 0.26) base.lerp(new THREE.Color(p.rock), (slope - 0.26) / 0.16 * 0.7);
-    return base;
+    return grade(base);
   }
 
   /**
@@ -162,6 +165,7 @@ export class Terrain {
 
     const mesh = new THREE.Mesh(flat, new THREE.MeshLambertMaterial({ vertexColors: true }));
     mesh.name = "terrain";
+    mesh.receiveShadow = true;
     return mesh;
   }
 
