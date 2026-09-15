@@ -34,6 +34,11 @@ export class Hud {
       objTask: $("objective-task"),
       vitals: $("vitals"),
       healthFill: $("health-fill"),
+      hullFill: $("hull-fill"),
+      hullRow: $("hull-row"),
+      threat: $("threat"),
+      threatName: $("threat").querySelector(".threat-name"),
+      threatFill: $("threat").querySelector(".threat-fill"),
       berries: $("berries"),
       reticle: $("reticle"),
       prompt: $("prompt"),
@@ -139,8 +144,12 @@ export class Hud {
     // (or "Drop anchor" ashore) is never right, so drop it on every change.
     this.clearPrompt();
     if (!playing) this.el.stick.classList.add("hidden");
-    // The attack button is dead weight while at sea.
-    $("btn-attack").style.visibility = mode === "island" ? "visible" : "hidden";
+    // The same button is a sword ashore and a cannon at sea.
+    const attack = $("btn-attack");
+    attack.style.visibility = playing ? "visible" : "hidden";
+    attack.textContent = mode === "sailing" ? "Fire" : "Strike";
+    this.el.hullRow.style.display = mode === "sailing" ? "" : "none";
+    if (mode !== "sailing") this.setThreat(0, null);
   }
 
   setLoading(on, label = "Charting the seas…") {
@@ -201,7 +210,36 @@ export class Hud {
   }
 
   setHealth(frac) {
-    this.el.healthFill.style.width = clamp(frac, 0, 1) * 100 + "%";
+    const f = clamp(frac, 0, 1);
+    this.el.healthFill.style.width = f * 100 + "%";
+    this.el.healthFill.classList.toggle("low", f < 0.3);
+  }
+
+  setHull(frac) {
+    const f = clamp(frac, 0, 1);
+    this.el.hullFill.style.width = f * 100 + "%";
+    this.el.hullFill.classList.toggle("low", f < 0.3);
+  }
+
+  /** The bar over whatever is currently trying to sink you. */
+  /** Dim the Fire button while the gun is being sponged out and loaded. */
+  setReload(frac) {
+    const f = clamp(frac, 0, 1);
+    if (Math.abs((this._reload ?? -1) - f) < 0.05 && f !== 1) return;
+    this._reload = f;
+    const btn = document.getElementById("btn-attack");
+    btn.style.opacity = 0.35 + f * 0.65;
+    btn.textContent = f >= 1 ? "Fire" : "…";
+  }
+
+  setThreat(frac, name) {
+    if (!name || frac <= 0) {
+      this.el.threat.classList.add("hidden");
+      return;
+    }
+    this.el.threatName.textContent = name;
+    this.el.threatFill.style.width = clamp(frac, 0, 1) * 100 + "%";
+    this.el.threat.classList.remove("hidden");
   }
 
   setBerries(n) {
@@ -258,7 +296,8 @@ export class Hud {
 
   // --- dialogue primitives --------------------------------------------------
 
-  showDialogue({ speaker, text, choices, onChoice, onAdvance }) {
+  showDialogue({ speaker, text, choices, onChoice, onAdvance, progress }) {
+    this._dlgProgress = progress ?? this._dlgProgress;
     const d = this.el;
     d.dlgSpeaker.textContent = speaker || "";
     d.dlgText.textContent = text;
@@ -270,7 +309,8 @@ export class Hud {
         const b = document.createElement("button");
         b.className = "choice";
         b.setAttribute("data-ui", "");
-        b.textContent = c.label;
+        // A label may be a function of progress, so a shop can price by level.
+        b.textContent = typeof c.label === "function" ? c.label(this._dlgProgress) : c.label;
         b.addEventListener("pointerup", (e) => {
           e.stopPropagation();
           onChoice?.(i);

@@ -2,6 +2,7 @@ import * as THREE from "../../vendor/three-0.160.1.module.min.js";
 import { TAU, clamp, damp, dampAngle, lerp, makeRng, hashString, range } from "../core/utils.js";
 import { Ocean, sampleHeight, sampleNormal } from "../world/ocean.js";
 import { Weather } from "./weather.js";
+import { Encounters } from "./encounters.js";
 import { Sky } from "../world/sky.js";
 import { Terrain } from "../world/terrain.js";
 import { createShip, animateShip, SHIP, deckHeight, clampToDeck } from "../world/ship.js";
@@ -75,7 +76,78 @@ export class SailingMode {
       },
     });
 
+    this.encounters = new Encounters(this.ctx, this.scene);
+    this.encounters.onHullDamage = (amount) => this.damageHull(amount);
+
     this.built = true;
+  }
+
+  /** Take hull damage, and deal with being holed. */
+  damageHull(amount) {
+    const { progress, hud, audio } = this.ctx;
+    if (this.crippled) return;
+    const holed = progress.damageHull(amount);
+    hud.setHull(progress.hull / progress.maxHull);
+    audio.thud();
+    if (holed) this.founder();
+  }
+
+  /**
+   * Holed and taking water.
+   *
+   * Deliberately not a death: the voyage is the point, and losing an hour of
+   * progress to one bad squall would be miserable. The crew get her to the
+   * nearest safe landfall, and it costs money rather than time.
+   */
+  async founder() {
+    const { progress, hud, audio, route } = this.ctx;
+    this.crippled = true;
+    this.throttle = 0;
+    this.speed = 0;
+    this.atHelm = false;
+    audio.thud();
+
+    await hud.fade(true, 900);
+    this.encounters.clear("king");
+    this.encounters.clear("patrol");
+
+    const toll = Math.min(progress.berries, Math.max(200, Math.round(progress.berries * 0.25)));
+    progress.addBerries(-toll);
+    progress.repairHull(progress.maxHull);
+    hud.setHull(1);
+    hud.setBerries(progress.berries);
+
+    // Limp to the nearest island we are actually allowed to be at.
+    let best = null;
+    for (let i = 0; i < route.length; i++) {
+      if (!progress.isUnlocked(i)) continue;
+      const spec = route[i];
+      const d = Math.hypot(spec.world.x - this.position.x, spec.world.z - this.position.y);
+      if (!best || d < best.d) best = { d, spec };
+    }
+    const spec = best ? best.spec : route[0];
+    const angle = spec.dockAngle ?? 0;
+    const dist = spec.terrain.radius + 70;
+    this.position.set(spec.world.x + Math.sin(angle) * dist, spec.world.z + Math.cos(angle) * dist);
+    this.heading = angle;
+    this.justLeft = spec.id;
+    this.ctx.player.position.copy(SHIP.boardPoint);
+    this.syncShipTransform(0);
+
+    hud.toast(`Holed and towed to ${spec.name}. Repairs cost ฿${toll.toLocaleString("en-US")}.`, 5200);
+    await hud.fade(false, 900);
+    this.crippled = false;
+  }
+
+  /** Fire the cannon along the player's line of sight. */
+  fireCannon() {
+    const cam = this.ctx.engine.camera;
+    const origin = new THREE.Vector3();
+    const dir = new THREE.Vector3();
+    cam.getWorldPosition(origin);
+    cam.getWorldDirection(dir);
+    origin.addScaledVector(dir, 3);
+    this.encounters.fire(origin, dir);
   }
 
   /**
@@ -243,6 +315,7 @@ export class SailingMode {
     engine.camera.rotation.order = "YXZ";
 
     this.refreshCrew();
+    this.ctx.hud.setHull(progress.hull / progress.maxHull);
     this.applyClimate(target || route[0]);
     engine.setScene(this.scene);
     this.ctx.audio.setAmbience("sea");
@@ -312,7 +385,7 @@ export class SailingMode {
 
     // --- hull motion --------------------------------------------------------
     const drag = 0.45;
-    const targetSpeed = this.maxSpeed * this.throttle;
+    const targetSpeed = (this.ctx.progress.maxSpeed ?? this.maxSpeed) * this.throttle;
     this.speed = damp(this.speed, targetSpeed, this.throttle > 0.02 ? 0.9 : drag, dt);
 
     // A ship with no way on answers the helm poorly — that's the whole feel.
@@ -340,6 +413,18 @@ export class SailingMode {
     if (this.basePalette) {
       this.weather.apply(this.ocean, this.sky, this.scene, this.basePalette);
     }
+
+    if (input.consume("attack") && !this.crippled) this.fireCannon();
+
+    const nearestLand = this.nearest
+      ? this.nearest.distance
+      : (this.findNearestIsland()?.distance ?? 9999);
+    this.encounters.update(dt, time, this.ship.group.position, this.heading, {
+      weather: this.weather.severity,
+      nearestLand,
+      progress,
+    });
+    hud.setReload(1 - this.encounters.reload / Math.max(this.encounters.reloadTime, 0.001));
 
     // --- world --------------------------------------------------------------
     this.ship.group.getWorldPosition(_wp);
@@ -418,6 +503,8 @@ export class SailingMode {
         this.position.x += dx * push;
         this.position.y += dz * push;
         if (this.speed > 6) {
+          // Driving her onto the rocks should cost something.
+          this.damageHull(Math.min(14, this.speed * 0.6));
           this.speed *= 0.4;
           this.ctx.audio.splash();
         }

@@ -6,6 +6,12 @@ Sail a caravel across an open sea, make landfall on eleven islands from the East
 Blue to the Grand Line, walk each one in first person, talk your way through the
 people who live there, fight when you have to, and gather a crew.
 
+The crossing is not a loading screen. Weather turns as you sail — a squall
+builds into a storm that triples the size of the sea and shoves your bow off
+course — and things come out of that water. Sea kings rear up alongside;
+Marine patrols give chase and open fire. You have cannons of your own, aimed
+wherever you look.
+
 Everything is generated at runtime — the islands, the ship, the people, the
 waves, even the sound effects. There are no model files, no textures and no
 audio to download. The whole game is about 800 KB, most of which is the 3D
@@ -63,7 +69,7 @@ On a touchscreen:
 | **Left thumb, anywhere on the left of the screen** | Walk. The stick appears wherever you put your thumb down, so you don't have to find it. |
 | **Drag on the right of the screen** | Look around. |
 | **USE** | Talk, board, open chests, take the helm, drop anchor. |
-| **STRIKE** | Swing (ashore only). |
+| **STRIKE / FIRE** | Swing a blade ashore; fire a cannon at sea, along your line of sight. |
 | **JUMP** / **RUN** | As they say. |
 | **Log** | The captain's log: your route, your crew, your purse. |
 
@@ -72,7 +78,7 @@ left and right to steer. The sails *stay where you trim them* when you let go �
 so set your canvas once and steer with your thumb. A ship with no way on barely
 answers her helm, which is the point.
 
-With a keyboard: `WASD` move, mouse look, `E` use, `F` strike, `Space` jump,
+With a keyboard: `WASD` move, mouse look, `E` use, `F` strike/fire, `Space` jump,
 `Shift` run, `M` log, `Esc` pause.
 
 ## The voyage
@@ -100,6 +106,27 @@ have something to say, and hit harder alongside you ashore.
 Progress saves automatically — on landfall, on departure, at every quest beat,
 and whenever you switch away from the tab.
 
+## Out on the water
+
+**Weather** moves through calm, a fair breeze, squall and storm, and it moves
+in a ring — a storm always arrives through a squall and leaves through one, so
+you get a minute of warning and a real choice about whether to run for the
+island or ride it out. The swell grows to nearly three times its calm height,
+rain comes on in wind-leaning streaks, lightning cracks with thunder delayed by
+its distance, and in the worst of it the ship loses way and wanders off course.
+
+**Sea kings** rear out of the water and come for the hull. **Marine patrols**
+chase you down and exchange fire. Both can be beaten, and both can simply be
+outrun — the sea is meant to be dangerous, not a wall.
+
+**Your cannon** fires wherever you are looking, from anywhere on deck, on a
+reload you can feel. **Your hull** takes damage separately from your own
+health, and being holed does not end the voyage: the crew get her to the
+nearest safe landfall, and it costs Berries rather than progress.
+
+Which is what Berries are for. Every port of any size has a chandler selling
+meals, repairs, and three levels each of rigging, gunnery and hull plating.
+
 ## Running it locally
 
 No build step, no dependencies to install. Serve the folder over HTTP (ES
@@ -126,9 +153,10 @@ sw.js                 offline cache
 vendor/               three.js r160 (MIT)
 src/
   core/    engine, input, HUD, procedural audio, saves, math
-  world/   ocean, sky, ship, terrain, props, characters, island assembly
-  game/    player controller, sailing, exploring, dialogue, quests, combat
-  data/    the route and the crew — pure data
+  world/   ocean, sky, ship, terrain, props, characters, creatures, islands
+  game/    player, sailing, exploring, weather, encounters, dialogue,
+           quests, combat
+  data/    the route, the crew and the traders — pure data
 tests/                browser tests that play the game
 ```
 
@@ -146,7 +174,15 @@ from the mesh, so distant water keeps its detail on very few triangles.
 
 **The waves are defined once.** `WAVES` in `src/world/ocean.js` is the single
 source of truth: the GLSL is generated from that table, so the hull floats on
-exactly the water you can see.
+exactly the water you can see. Storm swell scales through one shared value for
+the same reason — a hull running calm-weather buoyancy through storm-sized
+waves would sink straight through them.
+
+**The sea king follows its own head.** Its body samples where the head has
+been, by arc length rather than by frame count, so the spine stays the same
+length whether it is charging or hanging still in the water. Sampling by frame
+count is what makes a creature like this telescope into its own skull the
+moment it slows down.
 
 **An island is a couple of draw calls.** Every prop is baked down to merged,
 vertex-coloured buffers sharing one material — a whole island of palms, houses,
@@ -164,8 +200,11 @@ step, the same files a player loads. See [`tests/README.md`](tests/README.md).
 ```sh
 npm install playwright
 python3 -m http.server 8099 &
-node tests/smoke.js    # one voyage: sail, dock, walk, talk, save, resume
-node tests/route.js    # all eleven islands, every quest stage, teardown audited
+node tests/smoke.js       # one voyage: sail, dock, walk, talk, save, resume
+node tests/route.js       # all eleven islands, every quest stage, teardown audited
+node tests/weather.js     # every sea state, and that the hull rides it
+node tests/encounters.js  # cannons, sea kings, patrols, hull damage
+node tests/shop.js        # prices, affordability, upgrades taking effect
 ```
 
 `smoke.js` fails on any console error and audits every island's places,

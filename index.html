@@ -43,8 +43,16 @@
   </div>
 
   <div id="vitals" class="hidden">
-    <div id="health-bar"><div id="health-fill"></div></div>
+    <div class="bar-row"><span class="bar-tag">YOU</span>
+      <div id="health-bar" class="bar"><div id="health-fill"></div></div></div>
+    <div class="bar-row" id="hull-row"><span class="bar-tag">HULL</span>
+      <div id="hull-bar" class="bar"><div id="hull-fill"></div></div></div>
     <div id="berries">฿ 0</div>
+  </div>
+
+  <div id="threat" class="hidden">
+    <div class="threat-name">—</div>
+    <div class="threat-bar"><div class="threat-fill"></div></div>
   </div>
 
   <div id="reticle" class="hidden"></div>

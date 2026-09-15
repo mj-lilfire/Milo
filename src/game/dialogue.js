@@ -83,6 +83,7 @@ export class DialogueRunner {
       speaker: last ? (last.speaker ?? this.npc.name) : this.npc.name,
       text: last ? last.text : "",
       choices,
+      progress: this.progress,
       onChoice: (i) => {
         const choice = choices[i];
         this.audio?.click();

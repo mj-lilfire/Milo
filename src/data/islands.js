@@ -1747,6 +1747,93 @@ const alabasta = (() => {
   };
 })();
 
+// ============================================================================
+// Traders
+// ============================================================================
+
+/** Prices. Flat rather than escalating, and capped at three levels each. */
+const PRICE = { meal: 150, patch: 500, sail: 2200, cannon: 2600, plate: 3200 };
+const MAX_LEVEL = 3;
+
+const level = (p, kind) => p.upgrades?.[kind] ?? 0;
+const money = (n) => "฿" + n.toLocaleString("en-US");
+
+/**
+ * A chandler on the quay.
+ *
+ * Built out of the ordinary dialogue system rather than a bespoke shop screen:
+ * a purchase is a conversation choice whose effects happen to move Berries and
+ * bump an upgrade. Choices are gated on what you can afford and on what you
+ * have already bought, so the list only ever shows real options.
+ */
+function shopkeeper(island, { name, greeting, look }) {
+  return {
+    id: "trader:" + island.id,
+    name,
+    role: "Chandler",
+    at: { shore: (island.dockAngle ?? 0) + 0.5, shoreHeight: 2.4 },
+    look: look || {
+      shirt: 0x6a5a4a, pants: 0x3f3a32, skin: 0xd8a87e, hairColor: 0x6a5a4a,
+      accent: 0xc9a227, hat: "cap", hair: "short",
+    },
+    talks: [
+      {
+        lines: [greeting],
+        choices: [
+          {
+            label: () => `Hot meal — ${money(PRICE.meal)}`,
+            when: { minBerries: PRICE.meal },
+            lines: ["Sit down and eat it properly. You'll keep it down better."],
+            effects: { berries: -PRICE.meal, heal: 55 },
+          },
+          {
+            label: () => `Patch the hull — ${money(PRICE.patch)}`,
+            when: { minBerries: PRICE.patch },
+            lines: ["Oakum and tar. She'll hold."],
+            effects: { berries: -PRICE.patch, repair: 70 },
+          },
+          {
+            label: (p) => `Better rigging (lvl ${level(p, "sail") + 1}) — ${money(PRICE.sail)}`,
+            when: { minBerries: PRICE.sail, upgradeUnder: { kind: "sail", level: MAX_LEVEL } },
+            lines: ["New sheets and a lighter yard. She'll find another knot in her."],
+            effects: { berries: -PRICE.sail, upgrade: "sail" },
+          },
+          {
+            label: (p) => `Heavier shot (lvl ${level(p, "cannon") + 1}) — ${money(PRICE.cannon)}`,
+            when: { minBerries: PRICE.cannon, upgradeUnder: { kind: "cannon", level: MAX_LEVEL } },
+            lines: ["Bored true and packed tight. Load faster, hit harder."],
+            effects: { berries: -PRICE.cannon, upgrade: "cannon" },
+          },
+          {
+            label: (p) => `Hull plating (lvl ${level(p, "hull") + 1}) — ${money(PRICE.plate)}`,
+            when: { minBerries: PRICE.plate, upgradeUnder: { kind: "hull", level: MAX_LEVEL } },
+            lines: ["Doubled from the waterline up. Sea kings don't read plans."],
+            effects: { berries: -PRICE.plate, upgrade: "hull" },
+          },
+          { label: "Nothing today.", lines: ["Fair winds, then."] },
+        ],
+      },
+    ],
+  };
+}
+
+const TRADERS = {
+  shells: { name: "Bogart", greeting: "Marines don't pay. Pirates do. What'll it be?" },
+  orange: { name: "Boodle's Niece", greeting: "Half this stock was looted back off the circus. Bargain, really." },
+  syrup: { name: "Merry", greeting: "Ship's chandler. If it goes on a boat, I have it." },
+  baratie: { name: "Patty", greeting: "Galley's through there. Ship's stores are out here. Don't confuse them." },
+  logue: { name: "Ipponmatsu", greeting: "Last honest prices before the Grand Line. Enjoy them." },
+  whisky: { name: "Mr. 8", greeting: "Now that we're all being truthful — I do also sell rope." },
+  drum: { name: "Dalton's Cousin", greeting: "Everything's twice the price and half the stock. It's a winter island." },
+  alabasta: { name: "Toto's Boy", greeting: "Water's dearer than powder here. Both are for sale." },
+};
+
+for (const island of Object.values({ foosha, shells, orange, syrup, baratie, arlong, logue, reverse, whisky, drum, alabasta })) {
+  const spec = TRADERS[island.id];
+  if (!spec) continue;
+  (island.npcs = island.npcs || []).push(shopkeeper(island, spec));
+}
+
 /** The voyage, in order. The Log Pose walks this list from top to bottom. */
 export const ROUTE = [
   foosha, shells, orange, syrup, baratie, arlong,

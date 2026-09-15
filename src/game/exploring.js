@@ -525,6 +525,15 @@ export class ExploringMode {
       case "objective":
         audio.click();
         break;
+      case "upgrade":
+        audio.fanfare();
+        hud.toast(notice.text, 4200);
+        hud.setHull(progress.hull / progress.maxHull);
+        break;
+      case "vitals":
+        hud.setHull(progress.hull / progress.maxHull);
+        hud.setHealth(progress.health / progress.maxHealth);
+        break;
       default:
         break;
     }

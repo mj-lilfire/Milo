@@ -17,6 +17,35 @@ export class Progress {
     this.steps = {};
     this.health = 100;
     this.maxHealth = 100;
+    // The ship takes damage separately from the captain, and both are spent
+    // currency in their own way: one sends you back to the jetty, the other
+    // costs Berries to put right.
+    this.hull = 100;
+    this.upgrades = { sail: 0, cannon: 0, hull: 0 };
+  }
+
+  get maxHull() {
+    return 100 + (this.upgrades.hull || 0) * 45;
+  }
+
+  /** Top speed under sail, improved by rigging upgrades. */
+  get maxSpeed() {
+    return 17 + (this.upgrades.sail || 0) * 3.4;
+  }
+
+  repairHull(amount) {
+    this.hull = Math.min(this.maxHull, this.hull + amount);
+  }
+
+  damageHull(amount) {
+    this.hull = Math.max(0, this.hull - amount);
+    return this.hull <= 0;
+  }
+
+  upgrade(kind) {
+    this.upgrades[kind] = (this.upgrades[kind] || 0) + 1;
+    if (kind === "hull") this.hull = this.maxHull;
+    return this.upgrades[kind];
   }
 
   // --- quest steps ----------------------------------------------------------
@@ -95,6 +124,8 @@ export class Progress {
       berries: this.berries,
       steps: this.steps,
       health: this.health,
+      hull: this.hull,
+      upgrades: this.upgrades,
     };
   }
 
@@ -109,6 +140,10 @@ export class Progress {
     p.berries = Number(data.berries) || 0;
     p.steps = data.steps && typeof data.steps === "object" ? data.steps : {};
     p.health = Number(data.health) || p.maxHealth;
+    p.upgrades = (data.upgrades && typeof data.upgrades === "object")
+      ? { sail: 0, cannon: 0, hull: 0, ...data.upgrades }
+      : { sail: 0, cannon: 0, hull: 0 };
+    p.hull = Number(data.hull) || p.maxHull;
     return p;
   }
 }
@@ -131,6 +166,10 @@ export function matches(when, progress, islandId) {
   if (when.completed && !progress.isComplete(when.completed)) return false;
   if (when.islandDone !== undefined && progress.isComplete(islandId) !== when.islandDone) return false;
   if (when.minBerries !== undefined && progress.berries < when.minBerries) return false;
+  if (when.upgradeUnder) {
+    const { kind, level } = when.upgradeUnder;
+    if ((progress.upgrades?.[kind] ?? 0) >= level) return false;
+  }
   return true;
 }
 
@@ -174,6 +213,21 @@ export function applyEffects(effects, progress, islandId, ctx = {}) {
   if (effects.heal) {
     progress.health = Math.min(progress.maxHealth, progress.health + effects.heal);
     notices.push({ type: "toast", text: "Patched up", sound: "pickup" });
+  }
+  if (effects.repair) {
+    const before = progress.hull;
+    progress.repairHull(effects.repair);
+    notices.push({
+      type: "toast",
+      text: `Hull repaired (+${Math.round(progress.hull - before)})`,
+      sound: "pickup",
+    });
+    notices.push({ type: "vitals" });
+  }
+  if (effects.upgrade) {
+    const level = progress.upgrade(effects.upgrade);
+    const names = { sail: "Rigging", cannon: "Gunnery", hull: "Hull plating" };
+    notices.push({ type: "upgrade", text: `${names[effects.upgrade]} improved — level ${level}` });
   }
   if (effects.completeIsland) {
     if (!progress.isComplete(islandId)) {

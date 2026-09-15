@@ -201,19 +201,73 @@ html, body {
   width: 168px;
 }
 
-#health-bar {
-  height: 12px;
+.bar-row { display: flex; align-items: center; gap: 7px; margin-bottom: 5px; }
+
+.bar-tag {
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  width: 30px;
+  opacity: 0.75;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
+}
+
+.bar {
+  flex: 1;
+  height: 11px;
   border-radius: 6px;
   border: 1px solid rgba(224, 167, 51, 0.5);
   background: rgba(0, 0, 0, 0.45);
   overflow: hidden;
 }
 
-#health-fill {
+#health-fill, #hull-fill {
   height: 100%;
   width: 100%;
-  background: linear-gradient(90deg, #c8452f, #e8703f);
   transition: width 0.18s ease-out;
+}
+
+#health-fill { background: linear-gradient(90deg, #c8452f, #e8703f); }
+#hull-fill { background: linear-gradient(90deg, #8a6a3a, #d8b05a); }
+
+/* Both bars pulse once they are low enough to matter. */
+#health-fill.low, #hull-fill.low { animation: bar-warn 1s ease-in-out infinite; }
+
+@keyframes bar-warn { 50% { filter: brightness(1.75); } }
+
+/* --- threat ---------------------------------------------------------------- */
+
+#threat {
+  position: absolute;
+  top: calc(var(--safe-t) + 96px);
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(300px, 46vw);
+  text-align: center;
+}
+
+.threat-name {
+  font-family: var(--serif);
+  font-size: 14px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #ffb4a3;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.9);
+  margin-bottom: 4px;
+}
+
+.threat-bar {
+  height: 8px;
+  border-radius: 5px;
+  border: 1px solid rgba(214, 69, 47, 0.7);
+  background: rgba(0, 0, 0, 0.55);
+  overflow: hidden;
+}
+
+.threat-fill {
+  height: 100%;
+  width: 100%;
+  background: linear-gradient(90deg, #8a2f22, #d6452f);
+  transition: width 0.2s ease-out;
 }
 
 #berries {
